@@ -1,0 +1,8 @@
+Options -MultiViews
+
+RewriteEngine On
+
+# Redirige todas las solicitudes a index.php si no existen archivos o carpetas coincidentes
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.php [QSA,L]
