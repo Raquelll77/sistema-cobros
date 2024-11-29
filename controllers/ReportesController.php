@@ -251,6 +251,109 @@ class ReportesController
         exit;
     }
 
+    public static function deterioro(Router $router)
+    {
+
+        session_start();
+        isAuth();
+
+        $datosGrafica = ClientesPrestamos::deterioroCartera();
+
+        // Obtener los datos procesados
+        $deterioroDatosGestor = ClientesPrestamos::obtenerDeterioroPorGestorYSegmento();
+
+        // Definir la paleta de colores para cada segmento
+        $coloresSegmentos = [
+            'Vigente' => 'rgba(0, 0, 255, 0.7)',      // Azul
+            '0-30' => 'rgba(0, 128, 255, 0.7)',       // Azul claro
+            '31-60' => 'rgba(0, 255, 255, 0.7)',      // Cian
+            '61-90' => 'rgba(0, 255, 128, 0.7)',      // Verde claro
+            '91-120' => 'rgba(255, 255, 0, 0.7)',     // Amarillo
+            '+120' => 'rgba(200, 0, 0, 0.7)',         // Rojo
+        ];
+
+        // Preparar los datos para la gráfica
+        $gestores = array_keys($deterioroDatosGestor);
+        $segmentos = array_keys($coloresSegmentos); // Usar los segmentos definidos en la paleta de colores
+        $datasets = [];
+
+        // Crear un dataset para cada segmento
+        foreach ($segmentos as $segmento) {
+            $data = [];
+            foreach ($gestores as $gestor) {
+                $data[] = $deterioroDatosGestor[$gestor][$segmento] ?? 0;
+            }
+            $datasets[] = [
+                'label' => $segmento,
+                'data' => $data,
+                'backgroundColor' => $coloresSegmentos[$segmento],
+            ];
+        }
+
+        // Renderizar la vista con los datos de la gráfica
+        $router->render('reportes/deterioro', [
+            'titulo' => 'Reporte de Deterioro',
+            'datosGrafica' => $datosGrafica,
+            'datosGrafica2' => [
+                'labels' => $gestores,
+                'datasets' => $datasets,
+            ],
+        ]);
+    }
+    /* 
+        public static function descargarReporteDeterioro()
+        {
+            // Verificar autenticación
+            session_start();
+            isAuth();
+
+            // Generar el reporte
+            $reporte = ClientesPrestamos::generarReporteDeterioroExcel();
+
+            header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+            header('Content-Disposition: attachment; filename="' . $reporte['nombre'] . '"');
+            header('Content-Length: ' . filesize($reporte['ruta']));
+
+            readfile($reporte['ruta']);
+
+            // Eliminar el archivo temporal
+            unlink($reporte['ruta']);
+
+        } */
+
+    public static function descargarReporteDeterioro()
+    {
+        // Verificar autenticación
+        session_start();
+        isAuth();
+
+        // Generar el reporte
+        $reporte = ClientesPrestamos::generarReporteDeterioroExcel();
+
+        // Verificar si el archivo fue generado correctamente
+        if (file_exists($reporte['ruta'])) {
+            // Establecer encabezados para la descarga
+            header('Content-Description: File Transfer');
+            header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+            header('Content-Disposition: attachment; filename="' . basename($reporte['nombre']) . '"');
+            header('Content-Length: ' . filesize($reporte['ruta']));
+            header('Cache-Control: must-revalidate');
+            header('Pragma: public');
+            header('Expires: 0');
+
+            // Leer el archivo y enviarlo al navegador
+            readfile($reporte['ruta']);
+
+            // Eliminar el archivo temporal
+            unlink($reporte['ruta']);
+            exit;
+        } else {
+            // Manejar el error si el archivo no existe
+            http_response_code(500);
+            echo json_encode(['error' => 'No se pudo generar el reporte.']);
+        }
+    }
+
 
 
 }

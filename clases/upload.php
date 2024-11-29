@@ -43,13 +43,13 @@ class Upload
             }
 
             $prenumero = $row['A'] ?? null;
-            $idGestor = $row['B'] ?? null;
+            $usuarioCobros = $row['B'] ?? null;
             $nombreGestor = $row['C'] ?? null;
 
-            if ($prenumero && $idGestor && $nombreGestor) {
+            if ($prenumero && $usuarioCobros && $nombreGestor) {
                 $batch[] = [
                     ':prenumero' => $prenumero,
-                    ':idgestor' => $idGestor,
+                    ':usuarioCobros' => $usuarioCobros,
                     ':nombregestor' => $nombreGestor,
                 ];
             }
@@ -83,14 +83,14 @@ class Upload
 
             $query = "
                 MERGE prestamosGestor AS target
-                USING (VALUES (:prenumero, :idgestor, :nombregestor)) 
-                AS source (prenumero, idgestor, nombregestor)
+                USING (VALUES (:prenumero, :usuarioCobros, :nombregestor)) 
+                AS source (prenumero, usuarioCobros, nombregestor)
                 ON target.prenumero = source.prenumero
                 WHEN MATCHED THEN
-                    UPDATE SET idgestor = source.idgestor, nombregestor = source.nombregestor
+                    UPDATE SET usuarioCobros = source.usuarioCobros, nombregestor = source.nombregestor
                 WHEN NOT MATCHED THEN
-                    INSERT (prenumero, idgestor, nombregestor)
-                    VALUES (source.prenumero, source.idgestor, source.nombregestor);";
+                    INSERT (prenumero, usuarioCobros, nombregestor)
+                    VALUES (source.prenumero, source.usuarioCobros, source.nombregestor);";
 
             $stmt = $this->db->prepare($query);
 

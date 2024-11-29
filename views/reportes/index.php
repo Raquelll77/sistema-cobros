@@ -14,7 +14,7 @@
         <p class="texto-contenido">Recuperacion</p>
     </a>
 
-    <a href="/reportes/gestiones" class="contenido-seccion">
+    <a href="/reportes-deterioro" class="contenido-seccion">
         <img src="/build/img/gestion.png" alt="cartera-gestion">
         <p class="texto-contenido">Deterioro de Cartera</p>
     </a>

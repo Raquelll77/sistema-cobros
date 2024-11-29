@@ -4,17 +4,17 @@
 <main class="contenido">
 
     <a href="/reportes" class="contenido-seccion">
-        <img src="/build/img/reportes.png" alt="cartera-reportes">
+        <img src="/build/img/reporte-gestiones.png" alt="cartera-reportes">
         <p class="texto-contenido">Reportes</p>
     </a>
 
     <a href="/cobros" class="contenido-seccion">
-        <img src="/build/img/dinero.png" alt="cartera-cobro">
+        <img src="/build/img/reporte-recuperacion.png" alt="cartera-cobro">
         <p class="texto-contenido">Cobros</p>
     </a>
 
     <a href="/configuracion" class="contenido-seccion">
-        <img src="/build/img/gestion.png" alt="cartera-gestion">
+        <img src="/build/img/reporte-deterioro.png" alt="cartera-gestion">
         <p class="texto-contenido">Configuracion</p>
     </a>
 

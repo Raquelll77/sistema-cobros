@@ -36,6 +36,8 @@ $router->post('/reportes-gestiones', [ReportesController::class, 'gestiones']);
 $router->post('/descargar-gestiones', [ReportesController::class, 'descargarGestiones']);
 $router->get('/reportes-recuperacion', [ReportesController::class, 'recuperacion']);
 $router->post('/reportes-recuperacion', [ReportesController::class, 'descargarPagos']);
+$router->get('/reportes-deterioro', [ReportesController::class, 'deterioro']);
+$router->post('/reportes-deterioro', [ReportesController::class, 'descargarReporteDeterioro']);
 
 
 

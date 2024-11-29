@@ -2,6 +2,8 @@
 
 namespace Model;
 
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 class ClientesPrestamos extends ActiveRecord
 {
     protected static $tabla = 'SIFCO.CrPrestamos';
@@ -118,6 +120,153 @@ class ClientesPrestamos extends ActiveRecord
 
         return self::consultarSQL($sql, $params, true);
 
+    }
+
+    public static function deterioroCartera()
+    {
+        self::useSQLSrv2();
+
+        $sql = "EXEC deterioroCartera";
+        $params = [];
+
+        $data = self::consultarSQL($sql, $params, true);
+
+        // Inicializar la estructura para agrupar los datos por segmento y deterioro
+        $resultados = [
+            "Vigente" => ["Sí" => 0, "No" => 0],
+            "0-30" => ["Sí" => 0, "No" => 0],
+            "31-60" => ["Sí" => 0, "No" => 0],
+            "61-90" => ["Sí" => 0, "No" => 0],
+            "91-120" => ["Sí" => 0, "No" => 0],
+            "+120" => ["Sí" => 0, "No" => 0],
+        ];
+
+        // Recorrer los datos obtenidos y agruparlos según el segmento de mora y deterioro
+        foreach ($data as $fila) {
+            $segmento = $fila["Segmento de Mora Inicio Mes"] ?? "Vigente";
+            $deterioro = $fila["Deterioro"] ?? "No";
+
+            // Asegurar que el segmento y el deterioro existan en la estructura
+            if (isset($resultados[$segmento]) && isset($resultados[$segmento][$deterioro])) {
+                $resultados[$segmento][$deterioro]++;
+            }
+        }
+
+        // Preparar los datos en el formato requerido por Chart.js
+        $labels = array_keys($resultados);
+        $datasets = [
+            [
+                "label" => "Deterioro Sí",
+                "backgroundColor" => "rgba(255, 99, 132, 0.5)",
+                "borderColor" => "rgba(255, 99, 132, 1)",
+                "borderWidth" => 1,
+                "data" => array_column($resultados, "Sí"),
+            ],
+            [
+                "label" => "Deterioro No",
+                "backgroundColor" => "rgba(54, 162, 235, 0.5)",
+                "borderColor" => "rgba(54, 162, 235, 1)",
+                "borderWidth" => 1,
+                "data" => array_column($resultados, "No"),
+            ],
+        ];
+
+        return [
+            "labels" => $labels,
+            "datasets" => $datasets,
+        ];
+
+    }
+
+    public static function obtenerDeterioroPorGestorYSegmento()
+    {
+        self::useSQLSrv2();
+
+        $sql = "EXEC deterioroCartera";
+        $params = [];
+
+        $resultados = self::consultarSQL($sql, $params, true);
+
+        // Inicializar un array para almacenar los totales por gestor y segmento
+        $totales = [];
+
+        // Recorrer los resultados y agrupar por gestor y segmento
+        foreach ($resultados as $fila) {
+            $gestor = $fila['Nombre Gestor'];
+            $segmento = $fila['Segmento de Mora Inicio Mes'];
+
+            // Inicializar el contador si no existe
+            if (!isset($totales[$gestor])) {
+                $totales[$gestor] = [];
+            }
+            if (!isset($totales[$gestor][$segmento])) {
+                $totales[$gestor][$segmento] = 0;
+            }
+
+            // Incrementar el contador de créditos deteriorados
+            if ($fila['Deterioro'] === 'Sí') {
+                $totales[$gestor][$segmento]++;
+            }
+        }
+
+        return $totales;
+    }
+
+
+    public static function generarReporteDeterioroExcel()
+    {
+        self::useSQLSrv2();
+
+        // Ejecutar el procedimiento almacenado
+        $sql = "EXEC deterioroCartera";
+        $params = [];
+        $datos = self::consultarSQL($sql, $params, true);
+
+        // Crear una nueva hoja de cálculo
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        $sheet->setTitle('Reporte de Deterioro');
+
+        // Definir encabezados
+        $encabezados = [
+            'PreNumero',
+            'Nombre Cliente',
+            'Saldo Capital',
+            'Capital en Atraso',
+            'Interes en Atraso',
+            'Interes Moratorio',
+            'Total en Atraso',
+            'Días en Atraso',
+            'Segmento de Mora Inicio Mes',
+            'Segmento de Mora',
+            'Fecha de Último Pago en Atraso',
+            'Cuotas en Atraso Inicio Mes',
+            'Cuotas en Atraso Actual',
+            'Nombre Gestor',
+            'Deterioro'
+        ];
+
+        // Agregar encabezados a la hoja
+        $sheet->fromArray($encabezados, null, 'A1');
+
+        // Agregar datos a la hoja
+        $fila = 2;
+        foreach ($datos as $dato) {
+            $sheet->fromArray(array_values($dato), null, 'A' . $fila);
+            $fila++;
+        }
+
+        // Crear el escritor y guardar el archivo en una ubicación temporal
+        $writer = new Xlsx($spreadsheet);
+        $nombreArchivo = 'Reporte_Deterioro_' . date('Ymd_His') . '.xlsx';
+        $rutaArchivo = sys_get_temp_dir() . '/' . $nombreArchivo;
+        $writer->save($rutaArchivo);
+
+        // Devolver la ruta y nombre del archivo
+        return [
+            'ruta' => $rutaArchivo,
+            'nombre' => $nombreArchivo
+        ];
     }
 
 
