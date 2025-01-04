@@ -177,19 +177,30 @@
                 <div class="contenido-detalle">
 
                     <div class="campo">
-                        <label for="">Codigo de Resultado</label>
+                        <label for="codigoResultado">Código de Resultado</label>
                         <select name="codigoResultado" id="codigoResultado" required>
                             <option value="" disabled selected>--Seleccione--</option>
-                            <option value="PRONTO PAGO">PRONTO PAGO</option>
-                            <option value="CF">CF</option>
-                            <option value="DEC">DEC</option>
-                            <option value="PRP">PRP</option>
-                            <option value="DAR">DAR</option>
-                            <option value="RLL">RLL</option>
-                            <option value="SMS">SMS</option>
+                            <option value="PAGO">PAGO</option>
+                            <option value="ABONO">ABONO</option>
+                            <option value="PROMESA DE PAGO">PROMESA DE PAGO</option>
+                            <option value="CANCELACION">CANCELACION</option>
+                            <option value="DECOMISO">DECOMISO</option>
+                            <option value="PARA DECOMISO">PARA DECOMISO</option>
+                            <option value="SE NIEGA A PAGAR">SE NIEGA A PAGAR</option>
+                            <option value="PRESTO EL CREDITO">PRESTO EL CREDITO</option>
+                            <option value="SE FUE DEL PAIS">SE FUE DEL PAIS</option>
+                            <option value="CAMBIO DE DOMICILIO">CAMBIO DE DOMICILIO</option>
+                            <option value="FRAUDE">FRAUDE</option>
+                            <option value="ZONA DE RIESGO">ZONA DE RIESGO</option>
+                            <option value="ILOCALIZABLE">ILOCALIZABLE</option>
+                            <option value="PERFIL DE RIESGO">PERFIL DE RIESGO</option>
+                            <option value="DIFUNTO">DIFUNTO</option>
+                            <option value="EXCEPCION">EXCEPCION</option>
+                            <option value="ROBO">ROBO</option>
+                            <option value="TRANSITO">TRANSITO</option>
                         </select>
-
                     </div>
+
                     <div class="campo">
                         <label for="">Fecha de revision</label>
                         <input type="date" name="fechaRevision" min="<?= date('Y-m-d'); ?>" required>
@@ -239,7 +250,7 @@
                                 <div class="detalles-secundarios">
                                     <p><strong>Fecha de Revisión:</strong> <?= htmlspecialchars($gestion->fecha_revision); ?>
                                     </p>
-                                    <?php if ($gestion->codigo_resultado === "PRP" || $gestion->codigo_resultado === "PRONTO PAGO"): ?>
+                                    <?php if ($gestion->codigo_resultado === "PROMESA DE PAGO" || $gestion->codigo_resultado === "ABONO"): ?>
                                         <p><strong>Fecha de Promesa:</strong> <?= htmlspecialchars($gestion->fecha_promesa); ?></p>
                                     <?php endif; ?>
                                     <p class="nombre-gestor">Creado por: <?= htmlspecialchars($gestion->creado_por); ?></p>
@@ -392,8 +403,8 @@
                                 <p><strong>Fecha de Revisión:</strong> ${gestion.fecha_revision}</p>
                     `;
 
-                        // Solo incluir la fecha de promesa si el código es "PRP" o "PRONTO PAGO"
-                        if (gestion.codigo_resultado === "PRP" || gestion.codigo_resultado === "PRONTO PAGO") {
+                        // Solo incluir la fecha de promesa si el código es "PROMESA DE PAGO" o "ABONO"
+                        if (gestion.codigo_resultado === "PROMESA DE PAGO" || gestion.codigo_resultado === "ABONO") {
                             gestionCard += `
                             <p><strong>Fecha de Promesa:</strong> ${gestion.fecha_promesa}</p>
                         `;
@@ -443,7 +454,7 @@
 
 
         // Habilitar o deshabilitar el campo de "Fecha de Promesa"
-        if (codigo === "PRP" || codigo === "PRONTO PAGO") {
+        if (codigo === "PROMESA DE PAGO" || codigo === "ABONO") {
             fechaPromesa.disabled = false; // Habilitar el campo
             montoPromesa.disabled = false;
         } else {

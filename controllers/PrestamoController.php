@@ -30,13 +30,13 @@ class PrestamoController
                 'prenumero' => $params['prenumero'],
                 'codigo_resultado' => $params['codigoResultado'],
                 'fecha_revision' => $params['fechaRevision'] ?? null,
-                'fecha_promesa' => $params['codigoResultado'] === 'PRP' || $params['codigoResultado'] === 'PRONTO PAGO'
+                'fecha_promesa' => $params['codigoResultado'] === 'PROMESA DE PAGO' || $params['codigoResultado'] === 'ABONO'
                     ? $params['fechaPromesa'] ?? null
                     : null,
                 'numero_contactado' => $params['numeroContactado'],
                 'comentario' => $params['comentarioGestion'] ?? '',
                 'creado_por' => $_SESSION['nombre'],
-                'monto_promesa' => $params['codigoResultado'] === 'PRP' || $params['codigoResultado'] === 'PRONTO PAGO'
+                'monto_promesa' => $params['codigoResultado'] === 'PROMESA DE PAGO' || $params['codigoResultado'] === 'ABONO'
                     ? $params['montoPromesa'] ?? 0
                     : 0
             ];

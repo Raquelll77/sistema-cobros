@@ -4,63 +4,91 @@
     <div class="contenedor-95">
         <h1 class="ui header center aligned">Reporte de Gestiones Diario<? //php echo $titulo ?? 'Reporte Gestiones'; ?>
         </h1>
-        <div class="grid-2">
-            <article>
 
-                <!-- Formulario para seleccionar la fecha -->
-                <form method="POST" action="/reportes-gestiones">
-                    <div class="campo">
-                        <label for="fecha">Seleccione una fecha:</label>
-                        <input type="date" id="fecha" name="fecha"
-                            value="<?php echo htmlspecialchars($fechaSeleccionada ?? date('Y-m-d')); ?>" required>
-                    </div>
-                    <input class="boton-submit" type="submit" value="Ver Reporte">
-                </form>
+        <!-- <div class="grid-2"> -->
+        <article>
 
-                <!-- Tabla para mostrar los datos -->
-                <?php if (!empty($reporteGestionDiaria)):
-                    // Cálculo del total dinámico
-                    $sumaTotal = array_reduce($reporteGestionDiaria, function ($carry, $gestion) {
-                        return $carry + (float) $gestion['total'];
-                    }, 0); ?>
-                    <table class="ui celled striped cyan table" border="1" cellpadding="5" cellspacing="0">
-                        <thead>
+            <!-- Formulario para seleccionar la fecha -->
+            <form method="POST" action="/reportes-gestiones">
+                <div class="campo">
+                    <label for="fecha">Seleccione una fecha:</label>
+                    <input type="date" id="fecha" name="fecha"
+                        value="<?php echo htmlspecialchars($fechaSeleccionada ?? date('Y-m-d')); ?>" required>
+                </div>
+                <input class="boton-submit" type="submit" value="Ver Reporte">
+            </form>
+
+            <!-- Tabla para mostrar los datos -->
+            <?php if (!empty($reporteGestionDiaria)):
+                // Cálculo del total dinámico
+                $sumaTotal = array_reduce($reporteGestionDiaria, function ($carry, $gestion) {
+                    return $carry + (float) $gestion['total'];
+                }, 0); ?>
+                <table class="ui celled striped cyan table" border="1" cellpadding="5" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>GESTOR</th>
+                            <th>PAGO</th>
+                            <th>ABONO</th>
+                            <th>PRP</th>
+                            <th>CANCELACION</th>
+                            <th>DEC</th>
+                            <th>PARA DEC</th>
+                            <th>SE NIEGA PAGAR</th>
+                            <th>PRESTO CREDITO</th>
+                            <th>SE FUE DEL PAIS</th>
+                            <th>CMB. DOMICILIO</th>
+                            <th>FRAUDE</th>
+                            <th>ZONA RIESGO</th>
+                            <th>ILOCAL.</th>
+                            <th>PERFIL RIESGO</th>
+                            <th>DIFUNTO</th>
+                            <th>EXCEPCION</th>
+                            <th>ROBO</th>
+                            <th>TRANSITO</th>
+                            <th>TOTAL</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($reporteGestionDiaria as $gestion): ?>
                             <tr>
-                                <th>GESTOR</th>
-                                <th>PP</th>
-                                <th>CF</th>
-                                <th>DEC</th>
-                                <th>PRP</th>
-                                <th>DAR</th>
-                                <th>RLL</th>
-                                <th>SMS</th>
-                                <th>TOTAL</th>
+                                <td><?php echo htmlspecialchars($gestion['gestor']); ?></td>
+                                <td><?php echo htmlspecialchars($gestion['PAGO']); ?></td>
+                                <td><?php echo htmlspecialchars($gestion['ABONO']); ?></td>
+                                <td><?php echo htmlspecialchars($gestion['PROMESA DE PAGO']); ?></td>
+                                <td><?php echo htmlspecialchars($gestion['CANCELACION']); ?></td>
+                                <td><?php echo htmlspecialchars($gestion['DECOMISO']); ?></td>
+                                <td><?php echo htmlspecialchars($gestion['PARA DECOMISO']); ?></td>
+                                <td><?php echo htmlspecialchars($gestion['SE NIEGA A PAGAR']); ?></td>
+                                <td><?php echo htmlspecialchars($gestion['PRESTO EL CREDITO']); ?></td>
+                                <td><?php echo htmlspecialchars($gestion['SE FUE DEL PAIS']); ?></td>
+                                <td><?php echo htmlspecialchars($gestion['CAMBIO DE DOMICILIO']); ?></td>
+                                <td><?php echo htmlspecialchars($gestion['FRAUDE']); ?></td>
+                                <td><?php echo htmlspecialchars($gestion['ZONA DE RIESGO']); ?></td>
+                                <td><?php echo htmlspecialchars($gestion['ILOCALIZABLE']); ?></td>
+                                <td><?php echo htmlspecialchars($gestion['PERFIL DE RIESGO']); ?></td>
+                                <td><?php echo htmlspecialchars($gestion['DIFUNTO']); ?></td>
+                                <td><?php echo htmlspecialchars($gestion['EXCEPCION']); ?></td>
+                                <td><?php echo htmlspecialchars($gestion['ROBO']); ?></td>
+                                <td><?php echo htmlspecialchars($gestion['TRANSITO']); ?></td>
+                                <td><?php echo htmlspecialchars($gestion['total']); ?></td>
                             </tr>
-                        </thead>
-                        <tbody>
-                            <?php foreach ($reporteGestionDiaria as $gestion): ?>
-                                <tr>
-                                    <td><?php echo htmlspecialchars($gestion['gestor']); ?></td>
-                                    <td><?php echo htmlspecialchars($gestion['PRONTO PAGO']); ?></td>
-                                    <td><?php echo htmlspecialchars($gestion['CF']); ?></td>
-                                    <td><?php echo htmlspecialchars($gestion['DEC']); ?></td>
-                                    <td><?php echo htmlspecialchars($gestion['PRP']); ?></td>
-                                    <td><?php echo htmlspecialchars($gestion['DAR']); ?></td>
-                                    <td><?php echo htmlspecialchars($gestion['RLL']); ?></td>
-                                    <td><?php echo htmlspecialchars($gestion['SMS']); ?></td>
-                                    <td><?php echo htmlspecialchars($gestion['total']); ?></td>
-                                </tr>
-                            <?php endforeach; ?>
-                        </tbody>
-                        <tfoot>
-                            <th colspan="8">Suma Total:</th>
-                            <th><?php echo number_format($sumaTotal); ?></th>
-                        </tfoot>
-                    </table>
-                <?php else: ?>
-                    <p>No hay gestiones para la fecha seleccionada.</p>
-                <?php endif; ?>
-            </article>
+                        <?php endforeach; ?>
+                    </tbody>
+                    <tfoot>
+                        <th colspan="19">Suma Total:</th>
+                        <th><?php echo number_format($sumaTotal); ?></th>
+                    </tfoot>
+                </table>
+                <br>
+                <br>
+
+            <?php else: ?>
+                <p>No hay gestiones para la fecha seleccionada.</p>
+            <?php endif; ?>
+        </article>
+
+        <div class="grid-2">
             <article>
                 <canvas id="graficoGestiones" width="400" height="200" style="margin-top: 20px;"></canvas>
             </article>
@@ -69,14 +97,17 @@
                 <canvas id="graficoPastel" width="150" height="150" style="margin-top: 20px;"></canvas>
             </article>
 
-            <article style=" width: 50%; margin: 0 auto;">
-                <h1>Codigo de Resultado</h1>
-                <canvas id="graficoCodigos" width="400" height="200" style="margin-top: 20px;"></canvas>
-            </article>
-
-
-
         </div>
+        <article style=" width: 40%;">
+            <h1>Codigo de Resultado</h1>
+            <canvas id="graficoCodigos" width="400" height="200" style="margin-top: 20px;"></canvas>
+        </article>
+
+
+
+
+
+
 
         <h1>Historico Gestiones</h1>
 
@@ -96,24 +127,24 @@
                         Excel</button>
                 </div>
             </form>
-            <?php if (!empty($errores)): ?>
+            <?php if (!empty($errores)) { ?>
                 <script>
                     document.addEventListener('DOMContentLoaded', function () {
                         Swal.fire({
                             icon: 'error',
                             title: 'Errores Encontrados',
                             html: `
-                        <ul style="text-align: left;">
-                            <?php foreach ($errores as $error): ?>
-                                    <li><?php echo htmlspecialchars($error, ENT_QUOTES, 'UTF-8'); ?></li>
-                            <?php endforeach; ?>
-                        </ul>
-                    `,
+                                                                                                                                                                                                <ul style="text-align: left;">
+                                                                                                                                                                                                    <?php foreach ($errores as $error): ?>
+                                                                                                                                                                                                                                                                                                                                                                                    <li><?php echo htmlspecialchars($error, ENT_QUOTES, 'UTF-8'); ?></li>
+                                                                                                                                                                                                    <?php endforeach; ?>
+                                                                                                                                                                                                </ul>
+                                                                                                                                                                                            `,
                             confirmButtonText: 'Aceptar'
                         });
                     });
                 </script>
-            <?php endif; ?>
+            <?php } ?>
 
 
         </article>
@@ -121,7 +152,6 @@
     </div>
 
 
-</div>
 </div>
 
 <?php include_once __DIR__ . '/../principal/footer-dashboard.php' ?>
@@ -192,13 +222,24 @@
                 datasets: [{
                     data: pastelDataCodigos, // Usa los totales en lugar de porcentajes
                     backgroundColor: [
-                        'rgba(0, 191, 255, 0.8)',
-                        'rgba(191, 64, 191, 0.8)',
-                        'rgba(64, 191, 64, 0.8)',
-                        'rgba(255, 191, 64, 0.8)',
-                        'rgba(64, 64, 191, 0.8)',
-                        'rgba(191, 64, 64, 0.8)',
-                        'rgba(191, 191, 64, 0.8)'
+                        'rgba(0, 191, 255, 0.8)',    // PAGO
+                        'rgba(191, 64, 191, 0.8)',   // ABONO
+                        'rgba(64, 191, 64, 0.8)',    // PROMESA DE PAGO
+                        'rgba(255, 191, 64, 0.8)',   // CANCELACIÓN
+                        'rgba(64, 64, 191, 0.8)',    // DECOMISO
+                        'rgba(191, 64, 64, 0.8)',    // PARA DECOMISO
+                        'rgba(191, 191, 64, 0.8)',   // SE NIEGA A PAGAR
+                        'rgba(255, 99, 132, 0.8)',   // PRESTO EL CRÉDITO
+                        'rgba(54, 162, 235, 0.8)',   // SE FUE DEL PAÍS
+                        'rgba(255, 206, 86, 0.8)',   // CAMBIO DE DOMICILIO
+                        'rgba(75, 192, 192, 0.8)',   // FRAUDE
+                        'rgba(153, 102, 255, 0.8)',  // ZONA DE RIESGO
+                        'rgba(255, 159, 64, 0.8)',   // ILOCALIZABLE
+                        'rgba(199, 199, 199, 0.8)',  // PERFIL DE RIESGO
+                        'rgba(83, 102, 255, 0.8)',   // DIFUNTO
+                        'rgba(255, 153, 86, 0.8)',   // EXCEPCIÓN
+                        'rgba(99, 132, 192, 0.8)',   // ROBO
+                        'rgba(102, 159, 255, 0.8)'   // TRÁNSITO
                     ]
                 }]
             },

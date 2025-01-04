@@ -68,26 +68,47 @@ class Gestiones extends ActiveRecord
 
         // Inicializar códigos de resultado
         $codigoResultados = [
-            'PP' => 0,
-            'CF' => 0,
-            'DEC' => 0,
-            'PRP' => 0,
-            'DAR' => 0,
-            'RLL' => 0,
-            'SMS' => 0
+            'PAGO' => 0,
+            'ABONO' => 0,
+            'PROMESA DE PAGO' => 0,
+            'CANCELACION' => 0,
+            'DECOMISO' => 0,
+            'PARA DECOMISO' => 0,
+            'SE NIEGA A PAGAR' => 0,
+            'PRESTO EL CREDITO' => 0,
+            'SE FUE DEL PAIS' => 0,
+            'CAMBIO DE DOMICILIO' => 0,
+            'FRAUDE' => 0,
+            'ZONA DE RIESGO' => 0,
+            'ILOCALIZABLE' => 0,
+            'PERFIL DE RIESGO' => 0,
+            'DIFUNTO' => 0,
+            'EXCEPCION' => 0,
+            'ROBO' => 0,
+            'TRANSITO' => 0
         ];
 
         // Sumar códigos de resultado
         foreach ($gestiones as $gestion) {
-            $codigoResultados['PP'] += isset($gestion['PRONTO PAGO']) ? $gestion['PRONTO PAGO'] : 0;
-            $codigoResultados['CF'] += isset($gestion['CF']) ? $gestion['CF'] : 0;
-            $codigoResultados['DEC'] += isset($gestion['DEC']) ? $gestion['DEC'] : 0;
-            $codigoResultados['PRP'] += isset($gestion['PRP']) ? $gestion['PRP'] : 0;
-            $codigoResultados['DAR'] += isset($gestion['DAR']) ? $gestion['DAR'] : 0;
-            $codigoResultados['RLL'] += isset($gestion['RLL']) ? $gestion['RLL'] : 0;
-            $codigoResultados['SMS'] += isset($gestion['SMS']) ? $gestion['SMS'] : 0;
+            $codigoResultados['PAGO'] += isset($gestion['PAGO']) ? $gestion['PAGO'] : 0;
+            $codigoResultados['ABONO'] += isset($gestion['ABONO']) ? $gestion['ABONO'] : 0;
+            $codigoResultados['PROMESA DE PAGO'] += isset($gestion['PROMESA DE PAGO']) ? $gestion['PROMESA DE PAGO'] : 0;
+            $codigoResultados['CANCELACION'] += isset($gestion['CANCELACION']) ? $gestion['CANCELACION'] : 0;
+            $codigoResultados['DECOMISO'] += isset($gestion['DECOMISO']) ? $gestion['DECOMISO'] : 0;
+            $codigoResultados['PARA DECOMISO'] += isset($gestion['PARA DECOMISO']) ? $gestion['PARA DECOMISO'] : 0;
+            $codigoResultados['SE NIEGA A PAGAR'] += isset($gestion['SE NIEGA A PAGAR']) ? $gestion['SE NIEGA A PAGAR'] : 0;
+            $codigoResultados['PRESTO EL CREDITO'] += isset($gestion['PRESTO EL CREDITO']) ? $gestion['PRESTO EL CREDITO'] : 0;
+            $codigoResultados['SE FUE DEL PAIS'] += isset($gestion['SE FUE DEL PAIS']) ? $gestion['SE FUE DEL PAIS'] : 0;
+            $codigoResultados['CAMBIO DE DOMICILIO'] += isset($gestion['CAMBIO DE DOMICILIO']) ? $gestion['CAMBIO DE DOMICILIO'] : 0;
+            $codigoResultados['FRAUDE'] += isset($gestion['FRAUDE']) ? $gestion['FRAUDE'] : 0;
+            $codigoResultados['ZONA DE RIESGO'] += isset($gestion['ZONA DE RIESGO']) ? $gestion['ZONA DE RIESGO'] : 0;
+            $codigoResultados['ILOCALIZABLE'] += isset($gestion['ILOCALIZABLE']) ? $gestion['ILOCALIZABLE'] : 0;
+            $codigoResultados['PERFIL DE RIESGO'] += isset($gestion['PERFIL DE RIESGO']) ? $gestion['PERFIL DE RIESGO'] : 0;
+            $codigoResultados['DIFUNTO'] += isset($gestion['DIFUNTO']) ? $gestion['DIFUNTO'] : 0;
+            $codigoResultados['EXCEPCION'] += isset($gestion['EXCEPCION']) ? $gestion['EXCEPCION'] : 0;
+            $codigoResultados['ROBO'] += isset($gestion['ROBO']) ? $gestion['ROBO'] : 0;
+            $codigoResultados['TRANSITO'] += isset($gestion['TRANSITO']) ? $gestion['TRANSITO'] : 0;
         }
-
         // Calcular totales y porcentajes
         $totalCodigos = array_sum($codigoResultados);
         $porcentajesCodigos = $totalCodigos > 0
