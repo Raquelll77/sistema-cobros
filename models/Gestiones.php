@@ -66,7 +66,25 @@ class Gestiones extends ActiveRecord
             $porcentajesPorGestor[] = round(($total / $gestionesEsperadasPorGestor) * 100, 2);
         }
 
-        // Inicializar códigos de resultado
+
+        $listaCodigos = \Model\CodigosResultado::all();
+        $codigoResultados = [];
+        foreach ($listaCodigos as $codigoObj) {
+            // Inicializamos cada código con un valor 0
+            $codigoResultados[$codigoObj->codigo] = 0;
+        }
+
+        // Sumar los valores de cada código en las gestiones
+        foreach ($gestiones as $gestion) {
+            foreach ($codigoResultados as $codigo => $valor) {
+                // Se asume que en cada gestión se tiene un índice con el nombre del código (por ejemplo, 'PAGO')
+                if (isset($gestion[$codigo])) {
+                    $codigoResultados[$codigo] += $gestion[$codigo];
+                }
+            }
+        }
+
+        /* // Inicializar códigos de resultado
         $codigoResultados = [
             'PAGO' => 0,
             'ABONO' => 0,
@@ -108,7 +126,7 @@ class Gestiones extends ActiveRecord
             $codigoResultados['EXCEPCION'] += isset($gestion['EXCEPCION']) ? $gestion['EXCEPCION'] : 0;
             $codigoResultados['ROBO'] += isset($gestion['ROBO']) ? $gestion['ROBO'] : 0;
             $codigoResultados['TRANSITO'] += isset($gestion['TRANSITO']) ? $gestion['TRANSITO'] : 0;
-        }
+        } */
         // Calcular totales y porcentajes
         $totalCodigos = array_sum($codigoResultados);
         $porcentajesCodigos = $totalCodigos > 0

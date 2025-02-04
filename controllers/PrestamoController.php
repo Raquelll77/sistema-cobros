@@ -5,13 +5,16 @@ use MVC\Router;
 use Model\ClientesPrestamos;
 use Model\Gestiones;
 use Model\ComentariosPermanentes;
-
+use Model\CodigosResultado;
 class PrestamoController
 {
     public static function detalle(Router $router)
     {
         session_start();
         isAuth();
+
+        $codigosPositivos = CodigosResultado::obtenerPositivos();
+        $codigosPositivosArray = array_column($codigosPositivos, 'codigo');
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $params = $_POST;
@@ -25,20 +28,26 @@ class PrestamoController
                 exit;
             }
 
+
+            $fecha_promesa = in_array($params['codigoResultado'], $codigosPositivosArray)
+                ? ($params['fechaPromesa'] ?? null)
+                : null;
+
+            $monto_promesa = in_array($params['codigoResultado'], $codigosPositivosArray)
+                ? ($params['montoPromesa'] ?? 0)
+                : 0;
+
             // Validar y procesar los datos de la gestión
             $gestionData = [
                 'prenumero' => $params['prenumero'],
                 'codigo_resultado' => $params['codigoResultado'],
                 'fecha_revision' => $params['fechaRevision'] ?? null,
-                'fecha_promesa' => $params['codigoResultado'] === 'PROMESA DE PAGO' || $params['codigoResultado'] === 'ABONO'
-                    ? $params['fechaPromesa'] ?? null
-                    : null,
+                'fecha_promesa' => $fecha_promesa,
                 'numero_contactado' => $params['numeroContactado'],
                 'comentario' => $params['comentarioGestion'] ?? '',
                 'creado_por' => $_SESSION['nombre'],
-                'monto_promesa' => $params['codigoResultado'] === 'PROMESA DE PAGO' || $params['codigoResultado'] === 'ABONO'
-                    ? $params['montoPromesa'] ?? 0
-                    : 0
+                'monto_promesa' => $monto_promesa
+
             ];
 
             $gestion = new Gestiones($gestionData);
@@ -103,6 +112,9 @@ class PrestamoController
             $promesas = Gestiones::obtenerPromesasPorCliente($prenumero);
         }
 
+        $codigosResultado = CodigosResultado::all();
+
+
         // Renderizar la vista
         $router->render('prestamos/detalle', [
             'titulo' => 'Detalle del Préstamo',
@@ -111,7 +123,9 @@ class PrestamoController
             'pagosClientes' => $pagosClientes,
             'historialGestiones' => $historialGestiones,
             'comentarioPermanente' => $comentarioPermanente,
-            'promesas' => $promesas
+            'promesas' => $promesas,
+            'codigosResultado' => $codigosResultado,
+            'codigosPositivosArray' => $codigosPositivosArray
         ]);
     }
 

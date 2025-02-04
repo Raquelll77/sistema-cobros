@@ -180,24 +180,10 @@
                         <label for="codigoResultado">Código de Resultado</label>
                         <select name="codigoResultado" id="codigoResultado" required>
                             <option value="" disabled selected>--Seleccione--</option>
-                            <option value="PAGO">PAGO</option>
-                            <option value="ABONO">ABONO</option>
-                            <option value="PROMESA DE PAGO">PROMESA DE PAGO</option>
-                            <option value="CANCELACION">CANCELACION</option>
-                            <option value="DECOMISO">DECOMISO</option>
-                            <option value="PARA DECOMISO">PARA DECOMISO</option>
-                            <option value="SE NIEGA A PAGAR">SE NIEGA A PAGAR</option>
-                            <option value="PRESTO EL CREDITO">PRESTO EL CREDITO</option>
-                            <option value="SE FUE DEL PAIS">SE FUE DEL PAIS</option>
-                            <option value="CAMBIO DE DOMICILIO">CAMBIO DE DOMICILIO</option>
-                            <option value="FRAUDE">FRAUDE</option>
-                            <option value="ZONA DE RIESGO">ZONA DE RIESGO</option>
-                            <option value="ILOCALIZABLE">ILOCALIZABLE</option>
-                            <option value="PERFIL DE RIESGO">PERFIL DE RIESGO</option>
-                            <option value="DIFUNTO">DIFUNTO</option>
-                            <option value="EXCEPCION">EXCEPCION</option>
-                            <option value="ROBO">ROBO</option>
-                            <option value="TRANSITO">TRANSITO</option>
+
+                            <?php foreach ($codigosResultado as $codigo) { ?>
+                                <option value="<?= $codigo->codigo ?>"><?= $codigo->codigo ?></option>
+                            <?php } ?>
                         </select>
                     </div>
 
@@ -250,9 +236,12 @@
                                 <div class="detalles-secundarios">
                                     <p><strong>Fecha de Revisión:</strong> <?= htmlspecialchars($gestion->fecha_revision); ?>
                                     </p>
-                                    <?php if ($gestion->codigo_resultado === "PROMESA DE PAGO" || $gestion->codigo_resultado === "ABONO"): ?>
+
+                                    <!-- // Evaluar si el código de la gestión es positivo usando el arreglo de códigos positivos -->
+                                    <?php if (in_array($gestion->codigo_resultado, $codigosPositivosArray)): ?>
                                         <p><strong>Fecha de Promesa:</strong> <?= htmlspecialchars($gestion->fecha_promesa); ?></p>
                                     <?php endif; ?>
+
                                     <p class="nombre-gestor">Creado por: <?= htmlspecialchars($gestion->creado_por); ?></p>
                                 </div>
                             </div>
@@ -345,8 +334,7 @@
 
 <script src="/build/js/tabs.js"></script>
 <script>
-
-
+    const codigosPositivos = <?= json_encode($codigosPositivosArray) ?>;
     function enviarDatos() {
         const params = {};
         $("#frm-envio-datos [name]").each(function () {
@@ -402,12 +390,19 @@
                             <div class="detalles-secundarios">
                                 <p><strong>Fecha de Revisión:</strong> ${gestion.fecha_revision}</p>
                     `;
+                        /* 
+                                                // Solo incluir la fecha de promesa si el código es "PROMESA DE PAGO" o "ABONO"
+                                                if (gestion.codigo_resultado === "PROMESA DE PAGO" || gestion.codigo_resultado === "ABONO") {
+                                                    gestionCard += `
+                                                    <p><strong>Fecha de Promesa:</strong> ${gestion.fecha_promesa}</p>
+                                                `;
+                                                } */
 
-                        // Solo incluir la fecha de promesa si el código es "PROMESA DE PAGO" o "ABONO"
-                        if (gestion.codigo_resultado === "PROMESA DE PAGO" || gestion.codigo_resultado === "ABONO") {
+                        // Validar de forma dinámica si el código es positivo usando el arreglo inyectado
+                        if (codigosPositivos.includes(gestion.codigo_resultado)) {
                             gestionCard += `
-                            <p><strong>Fecha de Promesa:</strong> ${gestion.fecha_promesa}</p>
-                        `;
+                                <p><strong>Fecha de Promesa:</strong> ${gestion.fecha_promesa}</p>
+                            `;
                         }
 
                         gestionCard += `
@@ -454,7 +449,16 @@
 
 
         // Habilitar o deshabilitar el campo de "Fecha de Promesa"
-        if (codigo === "PROMESA DE PAGO" || codigo === "ABONO") {
+        /* if (codigo === "PROMESA DE PAGO" || codigo === "ABONO") {
+            fechaPromesa.disabled = false; // Habilitar el campo
+            montoPromesa.disabled = false;
+        } else {
+            fechaPromesa.value = ""; // Limpiar el valor actual si hay
+            fechaPromesa.disabled = true; // Deshabilitar el campo
+            montoPromesa.disabled = true;
+        } */
+
+        if (codigosPositivos.includes(codigo)) {
             fechaPromesa.disabled = false; // Habilitar el campo
             montoPromesa.disabled = false;
         } else {
