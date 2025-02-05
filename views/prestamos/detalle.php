@@ -221,8 +221,9 @@
         <div class="tab-content" id="historial-gestiones">
             <h2>Historial de Gestiones</h2>
             <div class="scrollable-gestiones">
-                <?php if (!empty($historialGestiones) && is_iterable($historialGestiones)): ?>
-                    <div class="historial-gestion-cards">
+
+                <div class="historial-gestion-cards">
+                    <?php if (!empty($historialGestiones) && is_iterable($historialGestiones)): ?>
                         <?php foreach ($historialGestiones as $gestion): ?>
                             <div class="gestion-card">
                                 <div class="encabezado-gestion">
