@@ -1,6 +1,14 @@
 @use 'base/mixins' as m;
 @use 'base/variables' as v;
 
+h1{
+    margin: 1rem !important; 
+    padding: 0 !important;
+}
+
+.contenedor-95{
+  padding-top: 3rem;
+}
 
 .contenido-detalle{
 
@@ -323,3 +331,20 @@ table td, table th {
     }
 }
 
+
+
+.boton-volver{
+    background-color: v.$cyan;
+    color: v.$blanco;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    text-transform: uppercase;
+    margin-top: 25rem;
+    font-weight: bold;
+} 
+
+.boton-volver:hover{
+    color: v.$blanco;
+    background-color: darken(v.$cyan, 20%);
+   
+}

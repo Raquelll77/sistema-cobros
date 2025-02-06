@@ -31,16 +31,16 @@
                             <th>PAGO</th>
                             <th>ABONO</th>
                             <th>PRP</th>
-                            <th>CANCELACION</th>
+                            <th>CANC</th>
                             <th>DEC</th>
                             <th>PARA DEC</th>
                             <th>SE NIEGA PAGAR</th>
-                            <th>PRESTO CREDITO</th>
-                            <th>SE FUE DEL PAIS</th>
+                            <th>PRST CREDITO</th>
+                            <th>FUERA DEL PAIS</th>
                             <th>CMB. DOMICILIO</th>
                             <th>FRAUDE</th>
                             <th>ZONA RIESGO</th>
-                            <th>ILOCAL.</th>
+                            <th>ILC.</th>
                             <th>PERFIL RIESGO</th>
                             <th>DIFUNTO</th>
                             <th>EXCEPCION</th>
@@ -134,12 +134,12 @@
                             icon: 'error',
                             title: 'Errores Encontrados',
                             html: `
-                                                                                                                                                                                                <ul style="text-align: left;">
-                                                                                                                                                                                                    <?php foreach ($errores as $error): ?>
-                                                                                                                                                                                                                                                                                                                                                                                    <li><?php echo htmlspecialchars($error, ENT_QUOTES, 'UTF-8'); ?></li>
-                                                                                                                                                                                                    <?php endforeach; ?>
-                                                                                                                                                                                                </ul>
-                                                                                                                                                                                            `,
+                                                                                                                                                                                                    <ul style="text-align: left;">
+                                                                                                                                                                                                        <?php foreach ($errores as $error): ?>
+                                                                                                                                                                                                                                                                                                                                                                                            <li><?php echo htmlspecialchars($error, ENT_QUOTES, 'UTF-8'); ?></li>
+                                                                                                                                                                                                        <?php endforeach; ?>
+                                                                                                                                                                                                    </ul>
+                                                                                                                                                                                                `,
                             confirmButtonText: 'Aceptar'
                         });
                     });
