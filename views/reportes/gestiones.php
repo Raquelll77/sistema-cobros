@@ -19,73 +19,71 @@
             </form>
 
             <!-- Tabla para mostrar los datos -->
-            <?php if (!empty($reporteGestionDiaria)):
-                // Cálculo del total dinámico
-                $sumaTotal = array_reduce($reporteGestionDiaria, function ($carry, $gestion) {
-                    return $carry + (float) $gestion['total'];
-                }, 0); ?>
+            <?php if (!empty($reporteGestionDiaria)): ?>
+
+                <?php
+                // Obtener dinámicamente los nombres de las columnas desde los datos
+                $columnas = array_keys($reporteGestionDiaria[0]); // Extrae las claves del primer registro
+            
+                // Inicializar la variable para almacenar los totales de cada columna
+                $sumaTotal = array_fill_keys($columnas, 0);
+
+                // Recorrer los datos y sumar cada columna
+                foreach ($reporteGestionDiaria as $gestion) {
+                    foreach ($columnas as $columna) {
+                        $sumaTotal[$columna] += (float) $gestion[$columna];
+                    }
+                }
+
+                // Siempre mantener la columna "GESTOR" aunque su suma sea 0
+                $columnaGestor = 'gestor';
+                $columnasConDatos = array_filter($sumaTotal, function ($valor, $columna) use ($columnaGestor) {
+                    return $valor > 0 || $columna === $columnaGestor; // Mantiene "gestor" siempre visible
+                }, ARRAY_FILTER_USE_BOTH);
+
+                // Si solo queda la columna "gestor" y ninguna más, mostrar mensaje
+                if (count($columnasConDatos) === 1 && isset($columnasConDatos[$columnaGestor])) {
+                    echo "<p>No hay datos relevantes para mostrar.</p>";
+                    return;
+                }
+                ?>
+
                 <table class="ui celled striped cyan table" border="1" cellpadding="5" cellspacing="0">
                     <thead>
                         <tr>
-                            <th>GESTOR</th>
-                            <th>PAGO</th>
-                            <th>ABONO</th>
-                            <th>PRP</th>
-                            <th>CANC</th>
-                            <th>DEC</th>
-                            <th>PARA DEC</th>
-                            <th>SE NIEGA PAGAR</th>
-                            <th>PRST CREDITO</th>
-                            <th>FUERA DEL PAIS</th>
-                            <th>CMB. DOMICILIO</th>
-                            <th>FRAUDE</th>
-                            <th>ZONA RIESGO</th>
-                            <th>ILC.</th>
-                            <th>PERFIL RIESGO</th>
-                            <th>DIFUNTO</th>
-                            <th>EXCEPCION</th>
-                            <th>ROBO</th>
-                            <th>TRANSITO</th>
-                            <th>TOTAL</th>
+                            <?php foreach ($columnasConDatos as $columna => $total): ?>
+                                <th><?php echo htmlspecialchars(strtoupper($columna)); ?></th>
+                            <?php endforeach; ?>
                         </tr>
                     </thead>
                     <tbody>
                         <?php foreach ($reporteGestionDiaria as $gestion): ?>
                             <tr>
-                                <td><?php echo htmlspecialchars($gestion['gestor']); ?></td>
-                                <td><?php echo htmlspecialchars($gestion['PAGO']); ?></td>
-                                <td><?php echo htmlspecialchars($gestion['ABONO']); ?></td>
-                                <td><?php echo htmlspecialchars($gestion['PROMESA DE PAGO']); ?></td>
-                                <td><?php echo htmlspecialchars($gestion['CANCELACION']); ?></td>
-                                <td><?php echo htmlspecialchars($gestion['DECOMISO']); ?></td>
-                                <td><?php echo htmlspecialchars($gestion['PARA DECOMISO']); ?></td>
-                                <td><?php echo htmlspecialchars($gestion['SE NIEGA A PAGAR']); ?></td>
-                                <td><?php echo htmlspecialchars($gestion['PRESTO EL CREDITO']); ?></td>
-                                <td><?php echo htmlspecialchars($gestion['SE FUE DEL PAIS']); ?></td>
-                                <td><?php echo htmlspecialchars($gestion['CAMBIO DE DOMICILIO']); ?></td>
-                                <td><?php echo htmlspecialchars($gestion['FRAUDE']); ?></td>
-                                <td><?php echo htmlspecialchars($gestion['ZONA DE RIESGO']); ?></td>
-                                <td><?php echo htmlspecialchars($gestion['ILOCALIZABLE']); ?></td>
-                                <td><?php echo htmlspecialchars($gestion['PERFIL DE RIESGO']); ?></td>
-                                <td><?php echo htmlspecialchars($gestion['DIFUNTO']); ?></td>
-                                <td><?php echo htmlspecialchars($gestion['EXCEPCION']); ?></td>
-                                <td><?php echo htmlspecialchars($gestion['ROBO']); ?></td>
-                                <td><?php echo htmlspecialchars($gestion['TRANSITO']); ?></td>
-                                <td><?php echo htmlspecialchars($gestion['total']); ?></td>
+                                <?php foreach ($columnasConDatos as $columna => $total): ?>
+                                    <td><?php echo htmlspecialchars($gestion[$columna]); ?></td>
+                                <?php endforeach; ?>
                             </tr>
                         <?php endforeach; ?>
                     </tbody>
                     <tfoot>
-                        <th colspan="19">Suma Total:</th>
-                        <th><?php echo number_format($sumaTotal); ?></th>
+                        <tr>
+                            <?php foreach ($columnasConDatos as $columna => $total): ?>
+                                <?php if ($columna === 'gestor'): ?>
+                                    <th>Total:</th> <!-- Siempre mostrar "Total" en la primera columna -->
+                                <?php else: ?>
+                                    <th><?php echo ($total > 0) ? number_format($total) : ''; ?></th>
+                                <?php endif; ?>
+                            <?php endforeach; ?>
+                        </tr>
                     </tfoot>
                 </table>
-                <br>
-                <br>
 
             <?php else: ?>
                 <p>No hay gestiones para la fecha seleccionada.</p>
             <?php endif; ?>
+
+
+
         </article>
 
         <div class="grid-2">
@@ -134,12 +132,12 @@
                             icon: 'error',
                             title: 'Errores Encontrados',
                             html: `
-                                                                                                                                                                                                    <ul style="text-align: left;">
-                                                                                                                                                                                                        <?php foreach ($errores as $error): ?>
-                                                                                                                                                                                                                                                                                                                                                                                            <li><?php echo htmlspecialchars($error, ENT_QUOTES, 'UTF-8'); ?></li>
-                                                                                                                                                                                                        <?php endforeach; ?>
-                                                                                                                                                                                                    </ul>
-                                                                                                                                                                                                `,
+                                                                                                                                                                                                                                            <ul style="text-align: left;">
+                                                                                                                                                                                                                                                <?php foreach ($errores as $error): ?>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <li><?php echo htmlspecialchars($error, ENT_QUOTES, 'UTF-8'); ?></li>
+                                                                                                                                                                                                                                                <?php endforeach; ?>
+                                                                                                                                                                                                                                            </ul>
+                                                                                                                                                                                                                                        `,
                             confirmButtonText: 'Aceptar'
                         });
                     });
