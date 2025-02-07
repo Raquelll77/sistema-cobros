@@ -1,20 +1,20 @@
 <?php
 
 namespace MVC;
-
+use Middlewares\AuthMiddleware;
 class Router
 {
-    public  $getRoutes = [];
-    public  $postRoutes = [];
+    public $getRoutes = [];
+    public $postRoutes = [];
 
-    public function get($url, $fn)
+    public function get($url, $fn, $roles = [])
     {
-        $this->getRoutes[$url] = $fn;
+        $this->getRoutes[$url] = ['fn' => $fn, 'roles' => $roles];
     }
 
-    public function post($url, $fn)
+    public function post($url, $fn, $roles = [])
     {
-        $this->postRoutes[$url] = $fn;
+        $this->postRoutes[$url] = ['fn' => $fn, 'roles' => $roles];
     }
 
     public function comprobarRutas()
@@ -35,9 +35,13 @@ class Router
         }
 
         if ($fn) {
-            call_user_func($fn, $this);
+            $rolesPermitidos = $fn['roles'];
+            if (!empty($rolesPermitidos)) {
+                AuthMiddleware::verificarRol($rolesPermitidos);
+            }
+            call_user_func($fn['fn'], $this);
         } else {
-            echo "Página No Encontrada o Ruta no válida";
+            echo "Página no encontrada";
         }
     }
 

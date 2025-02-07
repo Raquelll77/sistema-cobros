@@ -10,7 +10,7 @@ class PrestamoController
 {
     public static function detalle(Router $router)
     {
-        session_start();
+
         isAuth();
 
         $codigosPositivos = CodigosResultado::obtenerPositivos();

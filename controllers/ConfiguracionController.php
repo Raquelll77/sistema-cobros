@@ -10,7 +10,6 @@ class ConfiguracionController
 {
     public static function index(Router $router)
     {
-        session_start();
         isAuth();
 
         // Configurar tiempo de ejecución ilimitado

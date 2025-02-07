@@ -11,7 +11,7 @@ class PrincipalController
 
     public static function principal(Router $router)
     {
-        session_start();
+
         isAuth();
 
         $router->render('principal/index', [
@@ -22,7 +22,6 @@ class PrincipalController
     {
         $prestamos = '';
         /*  $prestamoXGestor = ''; */
-        session_start();
         isAuth();
 
         $prestamoXGestor = ClientesPrestamos::obtenerPrestamosPorGestor($_SESSION['usuario']);

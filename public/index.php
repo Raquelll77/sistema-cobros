@@ -23,28 +23,28 @@ $router->post('/', [LoginController::class, 'login']);
 $router->get('/logout', [LoginController::class, 'logout']);
 $router->get('/principal', [PrincipalController::class, 'principal']);
 
-$router->get('/cobros', [PrincipalController::class, 'buscarPrestamos']);
-$router->post('/cobros', [PrincipalController::class, 'buscarPrestamos']);
-$router->get('/prestamos/detalle', [PrestamoController::class, 'detalle']);
-$router->post('/prestamos/detalle', [PrestamoController::class, 'detalle']);
+$router->get('/cobros', [PrincipalController::class, 'buscarPrestamos'], ['ADMIN', 'SUPERVISOR', 'TELECOBRO']);
+$router->post('/cobros', [PrincipalController::class, 'buscarPrestamos'], ['ADMIN', 'SUPERVISOR', 'TELECOBRO']);
+$router->get('/prestamos/detalle', [PrestamoController::class, 'detalle'], ['ADMIN', 'SUPERVISOR', 'TELECOBRO']);
+$router->post('/prestamos/detalle', [PrestamoController::class, 'detalle'], ['ADMIN', 'SUPERVISOR', 'TELECOBRO']);
 
 
 //reportes
-$router->get('/reportes', [ReportesController::class, 'index']);
-$router->get('/reportes-gestiones', [ReportesController::class, 'gestiones']);
-$router->post('/reportes-gestiones', [ReportesController::class, 'gestiones']);
-$router->post('/descargar-gestiones', [ReportesController::class, 'descargarGestiones']);
-$router->get('/reportes-recuperacion', [ReportesController::class, 'recuperacion']);
-$router->post('/reportes-recuperacion', [ReportesController::class, 'descargarPagos']);
-$router->get('/reportes-deterioro', [ReportesController::class, 'deterioro']);
-$router->post('/reportes-deterioro', [ReportesController::class, 'descargarReporteDeterioro']);
+$router->get('/reportes', [ReportesController::class, 'index'], ['ADMIN', 'SUPERVISOR']);
+$router->get('/reportes-gestiones', [ReportesController::class, 'gestiones'], ['ADMIN', 'SUPERVISOR']);
+$router->post('/reportes-gestiones', [ReportesController::class, 'gestiones'], ['ADMIN', 'SUPERVISOR']);
+$router->post('/descargar-gestiones', [ReportesController::class, 'descargarGestiones'], ['ADMIN', 'SUPERVISOR']);
+$router->get('/reportes-recuperacion', [ReportesController::class, 'recuperacion'], ['ADMIN', 'SUPERVISOR']);
+$router->post('/reportes-recuperacion', [ReportesController::class, 'descargarPagos'], ['ADMIN', 'SUPERVISOR']);
+$router->get('/reportes-deterioro', [ReportesController::class, 'deterioro'], ['ADMIN', 'SUPERVISOR']);
+$router->post('/reportes-deterioro', [ReportesController::class, 'descargarReporteDeterioro'], ['ADMIN', 'SUPERVISOR']);
 
 
 
 
 //gestion
-$router->get('/configuracion', [ConfiguracionController::class, 'index']);
-$router->post('/configuracion-upload', [ConfiguracionController::class, 'index']);
+$router->get('/configuracion', [ConfiguracionController::class, 'index'], ['ADMIN']);
+$router->post('/configuracion-upload', [ConfiguracionController::class, 'index'], ['ADMIN']);
 
 // Comprueba y valida las rutas, que existan y les asigna las funciones del Controlador
 $router->comprobarRutas();

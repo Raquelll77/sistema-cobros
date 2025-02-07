@@ -15,7 +15,7 @@ class ReportesController
 
     public static function index(Router $router)
     {
-        session_start();
+
         isAuth();
         $router->render('reportes/index', [
 
@@ -23,7 +23,7 @@ class ReportesController
     }
     public static function gestiones(Router $router)
     {
-        session_start();
+
         isAuth();
 
         // Obtener fecha seleccionada o usar la fecha actual
@@ -45,7 +45,7 @@ class ReportesController
 
     public static function descargarGestiones(Router $router)
     {
-        session_start();
+
         isAuth();
 
         $errores = [];
@@ -133,7 +133,7 @@ class ReportesController
 
     public static function recuperacion(Router $router)
     {
-        session_start();
+
         isAuth();
 
         // Obtener el primer día del mes y el día actual
@@ -179,7 +179,7 @@ class ReportesController
 
     public static function descargarPagos(Router $router)
     {
-        session_start();
+
         isAuth();
 
         $errores = [];
@@ -254,7 +254,6 @@ class ReportesController
     public static function deterioro(Router $router)
     {
 
-        session_start();
         isAuth();
 
         $datosGrafica = ClientesPrestamos::deterioroCartera();
@@ -324,7 +323,7 @@ class ReportesController
     public static function descargarReporteDeterioro()
     {
         // Verificar autenticación
-        session_start();
+
         isAuth();
 
         // Generar el reporte
