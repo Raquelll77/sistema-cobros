@@ -1,5 +1,6 @@
 <?php
 
+//conexion a MySQL
 $mysql_db = mysqli_connect('192.168.1.164', 'portal_web', 'Hk80dlezi0f6', 'movesa_garantias', 3306);
 
 if (!$mysql_db) {

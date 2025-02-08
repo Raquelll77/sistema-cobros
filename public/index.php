@@ -18,10 +18,10 @@ use MVC\Router;
 
 $router = new Router();
 
-$router->get('/', [LoginController::class, 'login']);
-$router->post('/', [LoginController::class, 'login']);
+$router->get('/', [LoginController::class, 'login'], []);
+$router->post('/', [LoginController::class, 'login'], []);
 $router->get('/logout', [LoginController::class, 'logout']);
-$router->get('/principal', [PrincipalController::class, 'principal']);
+$router->get('/principal', [PrincipalController::class, 'principal'], ['ADMIN', 'SUPERVISOR', 'TELECOBRO']);
 
 $router->get('/cobros', [PrincipalController::class, 'buscarPrestamos'], ['ADMIN', 'SUPERVISOR', 'TELECOBRO']);
 $router->post('/cobros', [PrincipalController::class, 'buscarPrestamos'], ['ADMIN', 'SUPERVISOR', 'TELECOBRO']);

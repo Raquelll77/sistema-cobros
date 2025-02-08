@@ -1,14 +1,19 @@
+<?php include_once __DIR__ . '/../../includes/menu.php'; ?>
+
 <aside class="sidebar">
     <a href="/principal">
         <h1>SKG</h1>
     </a>
     <nav class="sidebar-nav">
-        <?php if ($_SESSION['rol'] === 'TELECOBRO'): ?>
-            <a href="/cobros"><i class="hand holding usd icon" style="visibility: visible;"></i>Cobros</a>
+        <?php if (!empty($opcionesMostrar) && is_array($opcionesMostrar)): ?>
+            <?php foreach ($opcionesMostrar as $opcion): ?>
+                <a href="<?php echo htmlspecialchars($opcion['ruta']); ?>">
+                    <i class="<?php echo htmlspecialchars($opcion['icono']); ?>" style="visibility: visible;"></i>
+                    <?php echo htmlspecialchars($opcion['texto']); ?>
+                </a>
+            <?php endforeach; ?>
         <?php else: ?>
-            <a href="/reportes"><i class="file alternate outline icon" style="visibility: visible;"></i>Reportes</a>
-            <a href="/cobros"><i class="hand holding usd icon" style="visibility: visible;"></i>Cobros</a>
-            <a href="/configuracion"><i class="cogs icon" style="visibility: visible;"></i>Configuracion</a>
+            <p>No tienes accesos asignados.</p>
         <?php endif; ?>
     </nav>
 </aside>

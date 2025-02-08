@@ -2,6 +2,7 @@
 
 namespace MVC;
 use Middlewares\AuthMiddleware;
+
 class Router
 {
     public $getRoutes = [];
@@ -28,35 +29,43 @@ class Router
 
         $method = $_SERVER['REQUEST_METHOD'];
 
+        // Determinar si la ruta está en GET o POST
         if ($method === 'GET') {
-            $fn = $this->getRoutes[$currentUrl] ?? null;
+            $ruta = $this->getRoutes[$currentUrl] ?? null;
         } else {
-            $fn = $this->postRoutes[$currentUrl] ?? null;
+            $ruta = $this->postRoutes[$currentUrl] ?? null;
         }
 
-        if ($fn) {
-            $rolesPermitidos = $fn['roles'];
+        if ($ruta) {
+            $fn = $ruta['fn']; // La función a ejecutar
+            $rolesPermitidos = $ruta['roles']; // Los roles permitidos
+
+            // Si la ruta tiene restricciones de rol, verificar antes de ejecutar
             if (!empty($rolesPermitidos)) {
                 AuthMiddleware::verificarRol($rolesPermitidos);
             }
-            call_user_func($fn['fn'], $this);
+
+            // Verificar que la función es un callback válido antes de ejecutarla
+            if (is_callable($fn)) {
+                call_user_func($fn, $this);
+            } else {
+                echo "Error: La ruta no tiene una función válida en Router.php";
+            }
         } else {
             echo "Página no encontrada";
         }
     }
 
-
     public function render($view, $datos = [])
     {
-
-        // Leer lo que le pasamos  a la vista
+        // Leer lo que le pasamos a la vista
         foreach ($datos as $key => $value) {
-            $$key = $value;  // Doble signo de dolar significa: variable variable, básicamente nuestra variable sigue siendo la original, pero al asignarla a otra no la reescribe, mantiene su valor, de esta forma el nombre de la variable se asigna dinamicamente
+            $$key = $value;
         }
 
-        ob_start(); // Almacenamiento en memoria durante un momento...
+        ob_start(); // Almacena el buffer temporalmente
 
-        // entonces incluimos la vista en el layout
+        // Incluir la vista dentro del layout
         include_once __DIR__ . "/views/$view.php";
         $contenido = ob_get_clean(); // Limpia el Buffer
         include_once __DIR__ . '/views/layout.php';
