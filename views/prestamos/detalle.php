@@ -171,7 +171,8 @@
                     <button class="tab-button" data-tab="historial-gestiones">Historial de Gestiones</button>
                     <button class="tab-button" data-tab="historial-pagos">Historial de Pagos</button>
                     <button class="tab-button" data-tab="historial-promesas">Historial Promesas de Pago</button>
-
+                    <button class="tab-button" data-tab="registrar-visita">Registrar Visita</button>
+                    <button class="tab-button" data-tab="historial-visitas">Historial Visitas</button>
                 </div>
 
                 <!-- Contenido de cada pestaña -->
@@ -263,10 +264,6 @@
                     </div>
                 </div>
 
-
-
-
-
                 <div class="tab-content" id="historial-pagos">
                     <h2>Historial de pagos</h2>
                     <!-- Aquí puedes añadir el contenido específico del historial de pagos -->
@@ -297,7 +294,7 @@
                 <div class="tab-content" id="historial-promesas">
                     <?php if (!empty($promesas)): ?>
 
-                        <h3>Promesas del Préstamo</h3>
+                        <h2>Promesas del Préstamo</h2>
 
                         <?php $totalPromesasIncumplidas = count(array_filter($promesas, function ($promesa) {
                             return $promesa['estado_promesa'] === 'INCUMPLIDA';
@@ -336,7 +333,7 @@
                     <?php endif; ?>
                 </div>
 
-
+                <?php include __DIR__ . '/secciones/visitas_domiciliares.php'; ?>
     </div>
 
 

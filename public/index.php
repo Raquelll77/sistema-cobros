@@ -27,6 +27,11 @@ $router->get('/cobros', [PrincipalController::class, 'buscarPrestamos'], ['ADMIN
 $router->post('/cobros', [PrincipalController::class, 'buscarPrestamos'], ['ADMIN', 'SUPERVISOR', 'TELECOBRO']);
 $router->get('/prestamos/detalle', [PrestamoController::class, 'detalle'], ['ADMIN', 'SUPERVISOR', 'TELECOBRO']);
 $router->post('/prestamos/detalle', [PrestamoController::class, 'detalle'], ['ADMIN', 'SUPERVISOR', 'TELECOBRO']);
+$router->post('/prestamos/guardar-visita', [PrestamoController::class, 'guardarVisita'], ['ADMIN', 'SUPERVISOR', 'TELECOBRO']);
+$router->get('/prestamos/obtener-historial-visitas', [PrestamoController::class, 'obtenerHistorialVisitas'], ['ADMIN', 'SUPERVISOR', 'TELECOBRO']);
+
+
+
 
 
 //reportes
