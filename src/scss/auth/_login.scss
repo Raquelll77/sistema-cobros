@@ -1,10 +1,11 @@
 @use 'base/mixins' as m;
 @use 'base/variables' as v;
+@use "sass:color";
 
 .login{
     margin-top: 5rem;
     .skg{
-        background: linear-gradient(to right, v.$cyan 0%, lighten(v.$cyan, 30%) 100%);
+        background: linear-gradient(to right, v.$cyan 0%, color.adjust(v.$cyan, $lightness: 30%) 100%);
         color: transparent;
         background-clip: text;
         text-align: center;

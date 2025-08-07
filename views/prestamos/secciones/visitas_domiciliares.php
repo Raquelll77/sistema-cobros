@@ -6,22 +6,22 @@
 
         <div class="campo">
             <label>Dirección exacta visitada:</label>
-            <textarea name="direccion_visitada"></textarea>
+            <textarea name="direccion_visitada" required></textarea>
         </div>
 
         <div class="campo">
             <label>Fecha de visita:</label>
-            <input type="date" name="fecha_visita">
+            <input type="date" name="fecha_visita" required>
         </div>
 
         <div class="campo">
             <label>Foto de Google Maps:</label>
-            <input type="file" name="foto_maps" accept="image/*">
+            <input type="file" name="foto_maps" accept="image/*" required>
         </div>
 
         <div class="campo">
             <label>Foto del lugar:</label>
-            <input type="file" name="foto_lugar" accept="image/*">
+            <input type="file" name="foto_lugar" accept="image/*" required>
         </div>
 
         <button type="submit" class="boton-submit">Guardar Visita</button>
@@ -31,7 +31,7 @@
 
 <div class="tab-content" id="historial-visitas">
     <h2>Historial de Visitas</h3>
-        <table class="ui table">
+        <table class="ui celled stackable table">
             <thead>
                 <tr>
                     <th>Fecha</th>
@@ -45,6 +45,7 @@
                 <?php include __DIR__ . '/historial_visitas.php' ?>
             </tbody>
         </table>
+
 
 </div>
 
@@ -76,6 +77,16 @@
 
         const form = e.target;
         const data = new FormData(form);
+
+        // Mostrar loader
+        Swal.fire({
+            title: 'Guardando visita...',
+            text: 'Por favor espera mientras se suben las fotos y se guarda la información.',
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
 
         fetch('/prestamos/guardar-visita', {
             method: 'POST',

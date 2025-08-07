@@ -1,4 +1,5 @@
 @use 'base/variables' as v;
+@use "sass:color";
 
 .alerta{
     padding: 1rem 1rem 1rem 2rem;
@@ -9,7 +10,7 @@
     max-width: 80rem;
 
     &.error{
-        background-color: lighten($color: v.$rojo, $amount: 60%);
+        background-color: color.adjust(v.$rojo, $lightness: 60%);
         border-left: .5rem solid v.$rojo;
         color: v.$rojo;
     }

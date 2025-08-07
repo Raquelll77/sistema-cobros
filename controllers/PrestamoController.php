@@ -168,8 +168,8 @@ class PrestamoController
         }
 
         // Crear nombres únicos
-        $foto_maps = uniqid('maps_') . '_' . basename($_FILES['foto_maps']['name']);
-        $foto_lugar = uniqid('lugar_') . '_' . basename($_FILES['foto_lugar']['name']);
+        $foto_maps = uniqid("{$prenumero}_maps_") . '_' . basename($_FILES['foto_maps']['name']);
+        $foto_lugar = uniqid("{$prenumero}_lugar_") . '_' . basename($_FILES['foto_lugar']['name']);
 
         $maps_path = '/uploads/visitas/' . $foto_maps;
         $lugar_path = '/uploads/visitas/' . $foto_lugar;

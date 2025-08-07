@@ -267,29 +267,31 @@
                 <div class="tab-content" id="historial-pagos">
                     <h2>Historial de pagos</h2>
                     <!-- Aquí puedes añadir el contenido específico del historial de pagos -->
-                    <table class="tabla-historial-pagos">
-                        <thead>
-                            <tr>
-                                <th>Fecha de Pago</th>
-                                <th>Aplicado por</th>
-                                <th>Total Pagado</th>
-                                <th>Cod Sucursal</th>
-                                <th>Caja</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- Ejemplo de una fila, puedes llenar con datos del historial de pagos de cada cliente -->
-                            <?php foreach ($pagosClientes as $pagoCliente) { ?>
+                    <div class="tabla-scroll">
+                        <table class="tabla-historial-pagos">
+                            <thead>
                                 <tr>
-                                    <td><?php echo $pagoCliente['Fecha'] ?></td>
-                                    <td><?php echo $pagoCliente['Aplicado por'] ?></td>
-                                    <td>L<?php echo number_format($pagoCliente['Total Pagado'], 2) ?></td>
-                                    <td><?php echo $pagoCliente['Cod Sucursal'] ?></td>
-                                    <td><?php echo $pagoCliente['Tienda'] ?></td>
+                                    <th>Fecha de Pago</th>
+                                    <th>Aplicado por</th>
+                                    <th>Total Pagado</th>
+                                    <th>Cod Sucursal</th>
+                                    <th>Caja</th>
                                 </tr>
-                            <?php } ?>
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                                <!-- Ejemplo de una fila, puedes llenar con datos del historial de pagos de cada cliente -->
+                                <?php foreach ($pagosClientes as $pagoCliente) { ?>
+                                    <tr>
+                                        <td><?php echo $pagoCliente['Fecha'] ?></td>
+                                        <td><?php echo $pagoCliente['Aplicado por'] ?></td>
+                                        <td>L<?php echo number_format($pagoCliente['Total Pagado'], 2) ?></td>
+                                        <td><?php echo $pagoCliente['Cod Sucursal'] ?></td>
+                                        <td><?php echo $pagoCliente['Tienda'] ?></td>
+                                    </tr>
+                                <?php } ?>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
                 <div class="tab-content" id="historial-promesas">
                     <?php if (!empty($promesas)): ?>
@@ -301,33 +303,34 @@
                         })); ?>
 
                         <h4>Total de promesas incumplidas: <?= $totalPromesasIncumplidas; ?> </h4>
-
-                        <table class="tabla-historial-promesas">
-                            <thead>
-                                <tr>
-                                    <th>Numero Contactado</th>
-                                    <th>Fecha Gestion</th>
-                                    <th>Fecha Promesa</th>
-                                    <th>Cod Resultado</th>
-                                    <th>Monto Promesa</th>
-                                    <th>Estado</th>
-                                    <th>Gestionado por</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php foreach ($promesas as $promesa): ?>
+                        <div class="tabla-scroll">
+                            <table class="tabla-historial-promesas">
+                                <thead>
                                     <tr>
-                                        <td><?php echo htmlspecialchars($promesa['numero_contactado']); ?></td>
-                                        <td><?php echo date('Y-m-d', strtotime($promesa['fecha_creacion'])); ?></td>
-                                        <td><?php echo htmlspecialchars($promesa['fecha_promesa']); ?></td>
-                                        <td><?php echo htmlspecialchars($promesa['codigo_resultado']); ?></td>
-                                        <td><?php echo htmlspecialchars($promesa['montoPromesa']); ?></td>
-                                        <td><?php echo htmlspecialchars($promesa['estado_promesa']); ?></td>
-                                        <td><?php echo htmlspecialchars($promesa['creado_por']); ?></td>
+                                        <th>Numero Contactado</th>
+                                        <th>Fecha Gestion</th>
+                                        <th>Fecha Promesa</th>
+                                        <th>Cod Resultado</th>
+                                        <th>Monto Promesa</th>
+                                        <th>Estado</th>
+                                        <th>Gestionado por</th>
                                     </tr>
-                                <?php endforeach; ?>
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($promesas as $promesa): ?>
+                                        <tr>
+                                            <td><?php echo htmlspecialchars($promesa['numero_contactado']); ?></td>
+                                            <td><?php echo date('Y-m-d', strtotime($promesa['fecha_creacion'])); ?></td>
+                                            <td><?php echo htmlspecialchars($promesa['fecha_promesa']); ?></td>
+                                            <td><?php echo htmlspecialchars($promesa['codigo_resultado']); ?></td>
+                                            <td><?php echo htmlspecialchars($promesa['montoPromesa']); ?></td>
+                                            <td><?php echo htmlspecialchars($promesa['estado_promesa']); ?></td>
+                                            <td><?php echo htmlspecialchars($promesa['creado_por']); ?></td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
                     <?php else: ?>
                         <p>No hay promesas registradas para este préstamo.</p>
                     <?php endif; ?>
