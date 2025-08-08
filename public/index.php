@@ -51,10 +51,10 @@ $router->post('/reportes-deterioro', [ReportesController::class, 'descargarRepor
 
 //Configuracion
 $router->get('/configuracion', [ConfiguracionController::class, 'index'], ['ADMIN', 'SUPERVISOR']);
-$router->get('/subir_creditos', [ConfiguracionController::class, 'subir_creditos'], ['ADMIN', 'SUPERVISOR']);
-$router->post('/subir_creditos', [ConfiguracionController::class, 'subir_creditos'], ['ADMIN', 'SUPERVISOR']);
-$router->get('/usuarios', [ConfiguracionController::class, 'usuarios'], ['ADMIN']);
-$router->post('/usuarios', [ConfiguracionController::class, 'usuarios'], ['ADMIN']);
+$router->get('/configuracion/subir_creditos', [ConfiguracionController::class, 'subir_creditos'], ['ADMIN', 'SUPERVISOR']);
+$router->post('/configuracion/subir_creditos', [ConfiguracionController::class, 'subir_creditos'], ['ADMIN', 'SUPERVISOR']);
+$router->get('/configuracion/usuarios', [ConfiguracionController::class, 'usuarios'], ['ADMIN']);
+$router->post('/configuracion/usuarios', [ConfiguracionController::class, 'usuarios'], ['ADMIN']);
 
 
 // Comprueba y valida las rutas, que existan y les asigna las funciones del Controlador

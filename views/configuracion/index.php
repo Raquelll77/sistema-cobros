@@ -6,10 +6,11 @@ $menuOpciones = [
     'SUPERVISOR' => [
         // ['ruta' => '/reportes', 'icono' => 'file alternate outline icon', 'texto' => 'Reportes'],
         // ['ruta' => '/cobros', 'icono' => 'hand holding usd icon', 'texto' => 'Cobros'],
-        ['ruta' => '/subir_creditos', 'icono' => 'upload black icon', 'texto' => 'Subir Creditos X Gestor'],
+        ['ruta' => '/configuracion/subir_creditos', 'icono' => 'upload black icon', 'texto' => 'Subir Creditos X Gestor'],
     ],
     'ADMIN' => [
-        ['ruta' => '/subir_creditos', 'icono' => 'upload black icon', 'texto' => 'Subir Creditos X Gestor'],
+        ['ruta' => '/configuracion/subir_creditos', 'icono' => 'upload black icon', 'texto' => 'Subir Creditos X Gestor'],
+        ['ruta' => '/configuracion/usuarios', 'icono' => 'user black icon', 'texto' => 'Usuarios'],
     ]
 ];
 

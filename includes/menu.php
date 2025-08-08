@@ -12,6 +12,7 @@ $menuOpciones = [
         ['ruta' => '/reportes', 'icono' => 'file alternate outline icon', 'texto' => 'Reportes'],
         ['ruta' => '/cobros', 'icono' => 'hand holding usd icon', 'texto' => 'Cobros'],
         ['ruta' => '/configuracion', 'icono' => 'cogs icon', 'texto' => 'Configuración'],
+
     ]
 ];
 

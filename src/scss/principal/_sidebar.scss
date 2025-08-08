@@ -30,9 +30,20 @@
                 background-color: v.$grisOscuro;
                 border-radius: .5rem;
             }
+
+             // Estilo para el enlace activo
+            &.active {
+                background-color: v.$grisOscuro;  // Color de fondo cuando está activo
+                color: v.$cyan;  // Color de texto blanco para la opción activa
+                font-weight: bold;  // Aumenta el peso de la fuente
+                border-left: 4px solid v.$blanco;  // Línea de borde rojo cuando está activo
+                padding-left: 1rem;  // Desplazamiento del contenido para mayor énfasis
+            }
         }
 
         
     }
+
+    
     
 }
