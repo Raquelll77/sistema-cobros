@@ -7,6 +7,7 @@ use Model\Gestiones;
 use Model\ComentariosPermanentes;
 use Model\CodigosResultado;
 use Model\VisitaDomiciliar;
+use Model\ReferenciaPrestamo;
 class PrestamoController
 {
     public static function detalle(Router $router)
@@ -17,7 +18,7 @@ class PrestamoController
         $codigosPositivos = CodigosResultado::obtenerPositivos();
         $codigosPositivosArray = array_column($codigosPositivos, 'codigo');
 
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['codigoResultado'])) {
             $params = $_POST;
 
             if (empty($params['prenumero']) || empty($_SESSION['nombre'])) {
@@ -116,6 +117,7 @@ class PrestamoController
         $codigosResultado = CodigosResultado::all();
         // Obtener las visitas asociadas a este préstamo
         $visitas = VisitaDomiciliar::whereAll('prenumero', $prenumero, 'ORDER BY creado_el DESC');
+        $referencias = ReferenciaPrestamo::whereAll('prenumero', $prenumero);
 
         // Renderizar la vista
         $router->render('prestamos/detalle', [
@@ -128,7 +130,8 @@ class PrestamoController
             'promesas' => $promesas,
             'codigosResultado' => $codigosResultado,
             'codigosPositivosArray' => $codigosPositivosArray,
-            'visitas' => $visitas
+            'visitas' => $visitas,
+            'referencias' => $referencias
         ]);
     }
 
@@ -222,6 +225,43 @@ class PrestamoController
         include_once __DIR__ . '/../views/prestamos/secciones/historial_visitas.php';
     }
 
+    public static function guardarReferencia()
+    {
+        isAuth();
+        header('Content-Type: application/json');
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['status' => 'error', 'mensaje' => 'Método no permitido']);
+            return;
+        }
+
+        $referencia = new ReferenciaPrestamo([
+            'prenumero' => $_POST['prenumero'] ?? '',
+            'nombre' => $_POST['nombre'] ?? '',
+            'relacion' => $_POST['relacion'] ?? '',
+            'celular' => $_POST['celular'] ?? '',
+            'creado_por' => $_SESSION['nombre'] ?? 'Sistema',
+        ]);
+
+        if ($referencia->guardar()) {
+            echo json_encode(['status' => 'success', 'mensaje' => 'Referencia guardada']);
+        } else {
+            echo json_encode(['status' => 'error', 'mensaje' => 'Error al guardar']);
+        }
+    }
+
+    public static function obtenerReferencias()
+    {
+        isAuth();
+        $prenumero = $_GET['prenumero'] ?? '';
+        if (!$prenumero) {
+            http_response_code(400);
+            echo "Número de préstamo requerido";
+            exit;
+        }
+        $referencias = ReferenciaPrestamo::whereAll('prenumero', $prenumero);
+        include_once __DIR__ . '/../views/prestamos/secciones/referencias_agregadas.php';
+    }
 
 
 

@@ -29,8 +29,10 @@ $router->get('/prestamos/detalle', [PrestamoController::class, 'detalle'], ['ADM
 $router->post('/prestamos/detalle', [PrestamoController::class, 'detalle'], ['ADMIN', 'SUPERVISOR', 'TELECOBRO']);
 $router->post('/prestamos/guardar-visita', [PrestamoController::class, 'guardarVisita'], ['ADMIN', 'SUPERVISOR', 'TELECOBRO']);
 $router->get('/prestamos/obtener-historial-visitas', [PrestamoController::class, 'obtenerHistorialVisitas'], ['ADMIN', 'SUPERVISOR', 'TELECOBRO']);
+$router->post('/prestamos/guardar-referencia', [PrestamoController::class, 'guardarReferencia'], ['ADMIN', 'SUPERVISOR', 'TELECOBRO']);
 
 
+$router->get('/prestamos/obtener-referencias', [PrestamoController::class, 'obtenerReferencias'], ['ADMIN', 'SUPERVISOR', 'TELECOBRO']);
 
 
 
@@ -47,9 +49,13 @@ $router->post('/reportes-deterioro', [ReportesController::class, 'descargarRepor
 
 
 
-//gestion
-$router->get('/configuracion', [ConfiguracionController::class, 'index'], ['ADMIN']);
-$router->post('/configuracion-upload', [ConfiguracionController::class, 'index'], ['ADMIN']);
+//Configuracion
+$router->get('/configuracion', [ConfiguracionController::class, 'index'], ['ADMIN', 'SUPERVISOR']);
+$router->get('/subir_creditos', [ConfiguracionController::class, 'subir_creditos'], ['ADMIN', 'SUPERVISOR']);
+$router->post('/subir_creditos', [ConfiguracionController::class, 'subir_creditos'], ['ADMIN', 'SUPERVISOR']);
+$router->get('/usuarios', [ConfiguracionController::class, 'usuarios'], ['ADMIN']);
+$router->post('/usuarios', [ConfiguracionController::class, 'usuarios'], ['ADMIN']);
+
 
 // Comprueba y valida las rutas, que existan y les asigna las funciones del Controlador
 $router->comprobarRutas();

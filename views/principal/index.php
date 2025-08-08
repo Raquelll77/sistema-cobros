@@ -1,5 +1,5 @@
 <?php
-include_once 'header-dashboard.php';
+
 include_once __DIR__ . '/../../includes/menu.php';
 ?>
 
@@ -29,5 +29,3 @@ include_once __DIR__ . '/../../includes/menu.php';
     <?php endif; ?>
 
 </main>
-
-<?php include_once 'footer-dashboard.php'; ?>

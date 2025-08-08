@@ -1,6 +1,3 @@
-<?php include_once __DIR__ . '/../principal/header-dashboard.php' ?>
-
-
 <h1 class="titulo-pagina">Reporteria</h1>
 <main class="contenido">
 
@@ -19,7 +16,3 @@
         <p class="texto-contenido">Deterioro de Cartera</p>
     </a>
 </main>
-
-
-
-<?php include_once __DIR__ . '/../principal/footer-dashboard.php' ?>

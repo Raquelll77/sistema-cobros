@@ -8,7 +8,7 @@ use Clases\Upload;
 
 class ConfiguracionController
 {
-    public static function index(Router $router)
+    public static function subir_creditos(Router $router)
     {
         isAuth();
 
@@ -45,10 +45,27 @@ class ConfiguracionController
         }
 
         // Renderizar vista
-        $router->render('configuracion/index', [
-            'titulo' => 'Configuración Principal',
+        $router->render('configuracion/subir_creditos_xgestor', [
+            'titulo' => 'Subir Creditos',
             'message' => $message,
             'status' => $status,
+        ]);
+    }
+
+    public static function index(Router $router)
+    {
+        isAuth();
+        $router->render('configuracion/index', [
+            'titulo' => 'Menu Configuracion'
+
+        ]);
+    }
+
+    public static function usuarios(Router $router)
+    {
+        isAuth();
+        $router->render('configuracion/usuarios', [
+            'titulo' => 'Usuarios'
         ]);
     }
 }

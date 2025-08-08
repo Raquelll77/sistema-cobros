@@ -1,6 +1,3 @@
-<?php include_once 'header-dashboard.php';
-$tab = $_GET['tab'] ?? $_POST['tab'] ?? 'busqueda-clientes'; ?>
-
 <div class="contenedor">
 
 

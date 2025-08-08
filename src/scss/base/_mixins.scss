@@ -40,6 +40,26 @@
     }
 }
 
+
+
+@mixin botonp($bgColor, $colorTexto){
+    background-color: $bgColor;
+    color: $colorTexto;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    text-transform: uppercase;
+    font-weight: bold;
+    border: none;
+
+    &:hover{
+    color: $colorTexto;
+    background-color: darken($bgColor, 20%);
+    cursor:pointer;
+   
+} 
+
+}
+
 @mixin grid($columnas, $espaciado ) {
     display: grid;
     gap: $espaciado;

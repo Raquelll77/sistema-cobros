@@ -1,4 +1,3 @@
-<?php include_once __DIR__ . '/../principal/header-dashboard.php' ?>
 <div class="contenedor">
     <?php
     $prenumero = htmlspecialchars($_GET['prenumero']);
@@ -101,7 +100,10 @@
                                 </tbody>
                             </table>
                         </div>
+                        <br>
 
+
+                        <?php include 'modal_referencias.php' ?>}
 
                     <?php } ?>
 
@@ -344,6 +346,7 @@
 
 <script src="/build/js/tabs.js"></script>
 <script>
+
     const codigosPositivos = <?= json_encode($codigosPositivosArray) ?>;
     function enviarDatos() {
         const params = {};
@@ -488,4 +491,3 @@
      */
 
 </script>
-<?php include_once __DIR__ . '/../principal/footer-dashboard.php' ?>

@@ -1,5 +1,3 @@
-<?php include_once __DIR__ . '/../principal/header-dashboard.php' ?>
-
 <div class="contenedor">
     <div class="contenedor-95">
         <h1 class="ui header center aligned">Reporte de Gestiones Diario<? //php echo $titulo ?? 'Reporte Gestiones'; ?>

@@ -17,6 +17,13 @@
 </head>
 
 <body>
+    <?php
+    // Contenido HTML (puedes también usar HEREDOC si prefieres)
+    ob_start(); {
+    }
+    include __DIR__ . '/principal/header-dashboard.php';
+    ?>
+
 
     <?php echo $contenido; ?>
     <?php echo $script ?? ''; ?>
@@ -29,9 +36,26 @@
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <!--     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script> -->
+    <!-- jQuery primero -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- Semantic UI después -->
+    <script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.5.0/dist/semantic.min.js"></script>
+
+    <!-- Optional: si usas componentes como dropdowns o modales personalizados -->
+    <script>
+        $(document).ready(function () {
+            // ejemplo de inicialización global
+            $('.ui.dropdown').dropdown();
+        });
+    </script>
 
 
 
+    <?php
+    // Contenido HTML (puedes también usar HEREDOC si prefieres)
+    include __DIR__ . '/principal/footer-dashboard.php';
+    ?>
 
 </body>
 

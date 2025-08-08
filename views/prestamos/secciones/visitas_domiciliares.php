@@ -11,7 +11,7 @@
 
         <div class="campo">
             <label>Fecha de visita:</label>
-            <input type="date" name="fecha_visita" required>
+            <input type="date" name="fecha_visita" max="<?= date('Y-m-d') ?>" required>
         </div>
 
         <div class="campo">

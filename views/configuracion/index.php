@@ -1,51 +1,33 @@
-<?php include_once __DIR__ . '/../principal/header-dashboard.php'; ?>
+<?php
+$menuOpciones = [
+    'TELECOBRO' => [
 
-<div class="contenedor">
-    <div class="contenedor-95">
-        <h1 class="ui header">Subir creditos por gestor</h1>
+    ],
+    'SUPERVISOR' => [
+        // ['ruta' => '/reportes', 'icono' => 'file alternate outline icon', 'texto' => 'Reportes'],
+        // ['ruta' => '/cobros', 'icono' => 'hand holding usd icon', 'texto' => 'Cobros'],
+        ['ruta' => '/subir_creditos', 'icono' => 'upload black icon', 'texto' => 'Subir Creditos X Gestor'],
+    ],
+    'ADMIN' => [
+        ['ruta' => '/subir_creditos', 'icono' => 'upload black icon', 'texto' => 'Subir Creditos X Gestor'],
+    ]
+];
 
-        <form id="upload-form" action="configuracion-upload" method="post" enctype="multipart/form-data"
-            class="ui form">
-            <div class="field">
-                <label for="file">Selecciona el archivo Excel:</label>
-                <input type="file" name="file" id="file" accept=".xlsx, .xls, .csv" required>
-            </div>
-            <button type="submit" class="ui primary button">
-                <i class="upload icon"></i>
-                Subir
-            </button>
-        </form>
-    </div>
-</div>
+// Obtener el rol actual del usuario
+$rolUsuario = $_SESSION['rol'] ?? 'INVITADO';
 
-<!-- Incluye el CSS de SweetAlert2 -->
-<link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+// Determinar qué opciones del menú mostrar según el rol
+$opcionesMostrar = $menuOpciones[$rolUsuario] ?? [];
 
-<!-- Incluye el archivo JS de SweetAlert2 -->
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-<script>
-    document.getElementById('upload-form').addEventListener('submit', function () {
-        // Mostrar SweetAlert de carga antes de enviar el formulario
-        Swal.fire({
-            title: 'Subiendo archivo...',
-            text: 'Por favor, espera mientras se procesan los datos.',
-            allowOutsideClick: false,
-            showConfirmButton: false,
-            didOpen: () => {
-                Swal.showLoading(); // Mostrar spinner
-            }
-        });
-    });
+?>
+<main class="contenido">
 
-    // Mostrar mensajes después del procesamiento
-    <?php if (!empty($message)): ?>
-        Swal.fire({
-            icon: '<?= $status === "success" ? "success" : "error" ?>',
-            title: '<?= $status === "success" ? "¡Éxito!" : "Error" ?>',
-            text: '<?= htmlspecialchars($message) ?>'
-        });
-    <?php endif; ?>
-</script>
+    <?php foreach ($opcionesMostrar as $opcion): ?>
+        <a href="<?= $opcion['ruta'] ?>" class="contenido-seccion">
+            <i class="<?= $opcion['icono'] ?> icon" style="font-size: 8rem; margin-bottom: 1rem;"></i>
+            <p class="texto-contenido"><?= $opcion['texto'] ?></p>
+        </a>
+    <?php endforeach; ?>
 
-<?php include_once __DIR__ . '/../principal/footer-dashboard.php'; ?>
+</main>
