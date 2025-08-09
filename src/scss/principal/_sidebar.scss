@@ -38,6 +38,10 @@
                 font-weight: bold;  // Aumenta el peso de la fuente
                 border-left: 4px solid v.$blanco;  // Línea de borde rojo cuando está activo
                 padding-left: 1rem;  // Desplazamiento del contenido para mayor énfasis
+
+                &:hover{
+                    color: v.$blanco;
+                }
             }
         }
 

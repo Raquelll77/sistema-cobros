@@ -5,15 +5,16 @@ namespace Model;
 class Usuario extends ActiveRecord
 {
     protected static $tabla = 'TBL_USER_COBROS';
-    protected static $columnasDB = ['id', 'nombre', 'usuario', 'password', 'rol'];
+    protected static $columnasDB = ['id', 'nombre', 'usuario', 'password', 'rol', 'estado'];
 
     public function __construct($args = [])
     {
-        $this->id = $args['id']  ?? null;
+        $this->id = $args['id'] ?? null;
         $this->nombre = $args['nombre'] ?? '';
         $this->usuario = $args['usuario'] ?? '';
         $this->password = $args['password'] ?? '';
         $this->rol = $args['rol'] ?? '';
+        $this->estado = $args['estado'] ?? 1;
     }
 
     //validar el login de usuarios

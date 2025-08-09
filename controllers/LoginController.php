@@ -57,7 +57,8 @@ class LoginController
         // Renderizar la vista de inicio de sesión
         $router->render('auth/login', [
             'titulo' => 'Iniciar Sesion',
-            'alertas' => $alertas
+            'alertas' => $alertas,
+            'hideChrome' => true
         ]);
     }
 

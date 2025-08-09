@@ -55,6 +55,7 @@ $router->get('/configuracion/subir_creditos', [ConfiguracionController::class, '
 $router->post('/configuracion/subir_creditos', [ConfiguracionController::class, 'subir_creditos'], ['ADMIN', 'SUPERVISOR']);
 $router->get('/configuracion/usuarios', [ConfiguracionController::class, 'usuarios'], ['ADMIN']);
 $router->post('/configuracion/usuarios', [ConfiguracionController::class, 'usuarios'], ['ADMIN']);
+$router->post('/configuracion/usuarios-guardar', [ConfiguracionController::class, 'usuariosGuardar'], ['ADMIN']);
 
 
 // Comprueba y valida las rutas, que existan y les asigna las funciones del Controlador

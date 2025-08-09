@@ -1,62 +1,54 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Sistema de Cobros | <?= $titulo ?? '' ?></title>
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Open+Sans&display=swap"
         rel="stylesheet">
+
     <link rel="stylesheet" href="/build/css/app.css">
-    <link rel="stylesheet" type="text/css"
-        href="https://cdnjs.cloudflare.com/ajax/libs/fomantic-ui/2.9.3/semantic.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.14.5/dist/sweetalert2.min.css"
-        integrity="sha256-qWVM38RAVYHA4W8TAlDdszO1hRaAq0ME7y2e9aab354=" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fomantic-ui/2.9.3/semantic.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.14.5/dist/sweetalert2.min.css">
 </head>
 
 <body>
     <?php
-    // Contenido HTML (puedes también usar HEREDOC si prefieres)
-    ob_start(); {
-    }
-    include __DIR__ . '/principal/header-dashboard.php';
+    if (session_status() === PHP_SESSION_NONE)
+        session_start();
+    $hideChrome = $hideChrome ?? false; // viene del render del controlador
     ?>
 
+    <?php if (!$hideChrome): ?>
+        <?php include __DIR__ . '/principal/header-dashboard.php'; ?>
+    <?php endif; ?>
 
-    <?php echo $contenido; ?>
-    <?php echo $script ?? ''; ?>
+    <?= $contenido ?? '' ?>
+    <?= $script ?? '' ?>
 
+    <!-- JS: carga una sola vez y en orden correcto -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fomantic-ui/2.9.3/semantic.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.14.5/dist/sweetalert2.all.min.js"
-        integrity="sha256-1m4qVbsdcSU19tulVTbeQReg0BjZiW6yGffnlr/NJu4=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.14.5/dist/sweetalert2.all.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <!-- Si usas DataTables, incluye su CSS/JS una sola vez -->
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-    <!--     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script> -->
-    <!-- jQuery primero -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-    <!-- Semantic UI después -->
-    <script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.5.0/dist/semantic.min.js"></script>
-
-    <!-- Optional: si usas componentes como dropdowns o modales personalizados -->
     <script>
-        $(document).ready(function () {
-            // ejemplo de inicialización global
+        // Inicialización global segura
+        $(function () {
             $('.ui.dropdown').dropdown();
+            $('.ui.checkbox').checkbox();
         });
     </script>
 
-
-
-    <?php
-    // Contenido HTML (puedes también usar HEREDOC si prefieres)
-    include __DIR__ . '/principal/footer-dashboard.php';
-    ?>
-
+    <?php if (!$hideChrome): ?>
+        <?php include __DIR__ . '/principal/footer-dashboard.php'; ?>
+    <?php endif; ?>
 </body>
 
 </html>

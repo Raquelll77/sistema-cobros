@@ -2,7 +2,8 @@
     <div class="contenedor-95">
         <h1 class="ui header">Subir creditos por gestor</h1>
 
-        <form id="upload-form" action="subir_creditos" method="post" enctype="multipart/form-data" class="ui form">
+        <form id="upload-form" action="/configuracion/subir_creditos" method="post" enctype="multipart/form-data"
+            class="ui form">
             <div class="field">
                 <label for="file">Selecciona el archivo Excel:</label>
                 <input type="file" name="file" id="file" accept=".xlsx, .xls, .csv" required>
