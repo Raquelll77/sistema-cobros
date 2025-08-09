@@ -442,7 +442,6 @@
         filtrarTabla('');
 
 
-
         // Delegación: click en habilitar/inhabilitar
         tbody.addEventListener('click', async function (e) {
             const a = e.target.closest('a');
@@ -459,59 +458,51 @@
             const userId = row?.getAttribute('data-id');
             if (!userId) return;
 
-            // Confirm
             const { isConfirmed } = await Swal.fire({
                 icon: 'question',
                 title: isInhabilitar ? 'Inhabilitar usuario' : 'Habilitar usuario',
-                text: isInhabilitar
-                    ? 'El usuario no podrá acceder al sistema. ¿Continuar?'
-                    : 'El usuario podrá acceder al sistema. ¿Continuar?',
+                text: isInhabilitar ? 'El usuario no podrá acceder al sistema. ¿Continuar?' : 'El usuario podrá acceder al sistema. ¿Continuar?',
                 showCancelButton: true,
                 confirmButtonText: isInhabilitar ? 'Sí, inhabilitar' : 'Sí, habilitar',
                 cancelButtonText: 'Cancelar'
             });
             if (!isConfirmed) return;
 
-            // Llamada AJAX
             try {
                 const url = isInhabilitar
                     ? `/configuracion/usuarios-inhabilitar?id=${encodeURIComponent(userId)}`
                     : `/configuracion/usuarios-habilitar?id=${encodeURIComponent(userId)}`;
 
+                // RUTAS GET -> usa GET y exige JSON
                 const resp = await fetch(url, {
-                    method: 'POST', // usa POST para cambiar estado
+                    method: 'GET',
                     headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
                 });
 
-                // Soporte si tu controlador redirige cuando no es AJAX
                 const ctype = resp.headers.get('content-type') || '';
-                if (resp.status === 401) { window.location = '/login'; return; }
-                if (resp.status === 403) {
-                    Swal.fire({ icon: 'error', title: 'Sin permisos', text: 'No tienes acceso a esta acción.' });
-                    return;
-                }
                 if (!resp.ok) {
                     const txt = ctype.includes('application/json') ? JSON.stringify(await resp.json()) : await resp.text();
                     Swal.fire({ icon: 'error', title: 'Error', html: `<pre>${txt}</pre>` });
                     return;
                 }
 
-                // Si devuelve JSON
-                let json = { ok: true, estado: isHabilitar ? 1 : 0, message: '' };
-                if (ctype.includes('application/json')) json = await resp.json();
+                if (!ctype.includes('application/json')) {
+                    Swal.fire({ icon: 'error', title: 'Respuesta inesperada', text: 'El servidor no devolvió JSON.' });
+                    return;
+                }
+
+                const json = await resp.json(); // { ok:bool, estado: 0|1, message?:string }
                 if (!json.ok) {
                     Swal.fire({ icon: 'error', title: 'No se pudo actualizar', text: json.message || '' });
                     return;
                 }
 
-                // Actualizar UI de la fila
-                const nuevoEstado = Number(json.estado ?? (isHabilitar ? 1 : 0));
-                // Columna estado (4ta)
+                // Actualizar UI
+                const nuevoEstado = Number(json.estado);
                 row.querySelector('td:nth-child(4)').innerHTML = nuevoEstado === 1
                     ? '<div class="ui green tiny label">Activo</div>'
                     : '<div class="ui red tiny label">Inactivo</div>';
 
-                // Botones (5ta) — re-render
                 const accionesTd = row.querySelector('td:nth-child(5) .ui.tiny.buttons');
                 accionesTd.innerHTML = `
       ${nuevoEstado === 1
