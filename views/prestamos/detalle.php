@@ -103,7 +103,7 @@
                         <br>
 
 
-                        <?php include 'modal_referencias.php' ?>}
+                        <?php include 'modal_referencias.php' ?>
 
                     <?php } ?>
 
@@ -119,7 +119,7 @@
                 <section class="saldo-prestamo">
                     <h2>Saldo del Préstamo</h2>
                     <div class="saldo-grid">
-                        <?php foreach ($saldoPrestamo as $saldo): ?>
+                        <?php foreach ($saldoPrestamo as $saldo) { ?>
                             <div class="saldo-card">
                                 <h3>Fecha de Pago</h3>
                                 <p><?php echo $saldo['DiaPagoCuota']; ?> de cada mes</p>
@@ -157,7 +157,7 @@
                                 <h3>Valor Cuota</h3>
                                 <p>L <?php echo number_format($saldo['Cuota'], 2); ?></p>
                             </div>
-                        <?php endforeach; ?>
+                        <?php } ?>
                     </div>
                 </section>
 
@@ -231,7 +231,7 @@
                     <div class="scrollable-gestiones">
 
                         <div class="historial-gestion-cards">
-                            <?php if (!empty($historialGestiones) && is_iterable($historialGestiones)): ?>
+                            <?php if (!empty($historialGestiones) && is_iterable($historialGestiones)) { ?>
                                 <?php foreach ($historialGestiones as $gestion): ?>
                                     <div class="gestion-card">
                                         <div class="encabezado-gestion">
@@ -260,9 +260,9 @@
                                     </div>
                                 <?php endforeach; ?>
                             </div>
-                        <?php else: ?>
+                        <?php } else { ?>
                             <p>No hay gestiones registradas para este préstamo.</p>
-                        <?php endif; ?>
+                        <?php } ?>
                     </div>
                 </div>
 
@@ -296,7 +296,7 @@
                     </div>
                 </div>
                 <div class="tab-content" id="historial-promesas">
-                    <?php if (!empty($promesas)): ?>
+                    <?php if (!empty($promesas)) { ?>
 
                         <h2>Promesas del Préstamo</h2>
 
@@ -319,7 +319,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <?php foreach ($promesas as $promesa): ?>
+                                    <?php foreach ($promesas as $promesa) { ?>
                                         <tr>
                                             <td><?php echo htmlspecialchars($promesa['numero_contactado']); ?></td>
                                             <td><?php echo date('Y-m-d', strtotime($promesa['fecha_creacion'])); ?></td>
@@ -329,13 +329,13 @@
                                             <td><?php echo htmlspecialchars($promesa['estado_promesa']); ?></td>
                                             <td><?php echo htmlspecialchars($promesa['creado_por']); ?></td>
                                         </tr>
-                                    <?php endforeach; ?>
+                                    <?php } ?>
                                 </tbody>
                             </table>
                         </div>
-                    <?php else: ?>
+                    <?php } else { ?>
                         <p>No hay promesas registradas para este préstamo.</p>
-                    <?php endif; ?>
+                    <?php } ?>
                 </div>
 
                 <?php include __DIR__ . '/secciones/visitas_domiciliares.php'; ?>
