@@ -33,17 +33,17 @@
                             <td>
                                 <div class="ui tiny buttons">
                                     <?php if ((int) $usuario->estado === 1): ?>
-                                        <a class="ui orange button"
+                                        <a class="ui orange icon button"
                                             href="/configuracion/usuarios-inhabilitar?id=<?= urlencode($usuario->id) ?>">
                                             <i class="ban icon"></i>
                                         </a>
                                     <?php else: ?>
-                                        <a class="ui green button"
+                                        <a class="ui green icon button"
                                             href="/configuracion/usuarios-habilitar?id=<?= urlencode($usuario->id) ?>">
                                             <i class="check icon"></i>
                                         </a>
                                     <?php endif; ?>
-                                    <a href="#" class="ui blue button btn-editar-usuario"
+                                    <a href="#" class="ui blue icon button btn-editar-usuario"
                                         data-id="<?= htmlspecialchars($usuario->id) ?>"
                                         data-usuario="<?= htmlspecialchars($usuario->usuario) ?>"
                                         data-nombre="<?= htmlspecialchars($usuario->nombre) ?>"
