@@ -181,37 +181,43 @@ class ConfiguracionController
      * GET /configuracion/habilitar_usuario?id=123
      * Cambia estado a 1 y redirige al listado.
      */
-    public static function habilitar_usuario()
+    public static function usuariosHabilitar()
     {
-        isAuth();
-        $id = (int) ($_GET['id'] ?? 0);
-        if ($id > 0) {
-            // Usuario::useSQLSrv();
-            $u = Usuario::find($id);
-            if ($u) {
-                $u->estado = 1;
-                $u->guardar();
-            }
+        // isAuth(); y verificación de rol si aplica
+        $id = (int) ($_REQUEST['id'] ?? 0);
+        $isAjax = (($_SERVER['HTTP_X_REQUESTED_WITH'] ?? '') === 'XMLHttpRequest');
+
+        // Usuario::useSQLSrv(); // si aplica
+        $u = $id ? Usuario::find($id) : null;
+        if ($u) {
+            $u->estado = 1;
+            $u->guardar();
+        }
+
+        if ($isAjax) {
+            header('Content-Type: application/json; charset=utf-8');
+            echo json_encode(['ok' => true, 'estado' => 1, 'message' => 'Usuario habilitado']);
+            exit;
         }
         header('Location: /configuracion/usuarios');
         exit;
     }
 
-    /**
-     * GET /configuracion/inhabilitar_usuario?id=123
-     * Cambia estado a 0 y redirige al listado.
-     */
-    public static function inhabilitar_usuario()
+    public static function usuariosInhabilitar()
     {
-        isAuth();
-        $id = (int) ($_GET['id'] ?? 0);
-        if ($id > 0) {
-            // Usuario::useSQLSrv();
-            $u = Usuario::find($id);
-            if ($u) {
-                $u->estado = 0;
-                $u->guardar();
-            }
+        $id = (int) ($_REQUEST['id'] ?? 0);
+        $isAjax = (($_SERVER['HTTP_X_REQUESTED_WITH'] ?? '') === 'XMLHttpRequest');
+
+        $u = $id ? Usuario::find($id) : null;
+        if ($u) {
+            $u->estado = 0;
+            $u->guardar();
+        }
+
+        if ($isAjax) {
+            header('Content-Type: application/json; charset=utf-8');
+            echo json_encode(['ok' => true, 'estado' => 0, 'message' => 'Usuario inhabilitado']);
+            exit;
         }
         header('Location: /configuracion/usuarios');
         exit;
