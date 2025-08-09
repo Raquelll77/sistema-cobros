@@ -136,12 +136,23 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
+        // ====== Helpers ======
         const hasJQ = typeof window.jQuery !== 'undefined';
         if (hasJQ) {
             try {
                 $('.ui.dropdown').dropdown();
                 $('.ui.checkbox').checkbox();
             } catch (e) { console.warn('Init Fomantic falló:', e); }
+        }
+
+        // Polyfill mínimo por si el navegador no tiene CSS.escape
+        const cssEscape = window.CSS && CSS.escape ? CSS.escape : (sel) => String(sel).replace(/"/g, '\\"');
+
+        function escapeHtml(str) {
+            return String(str)
+                .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
         }
 
         const tbody = document.querySelector('#tbl-usuarios-simple tbody');
@@ -152,27 +163,17 @@
         const fNombre = document.getElementById('f_nombre');
         const fRol = document.getElementById('f_rol');
         const fEstado = document.getElementById('f_estado');
-        const fPassword = document.getElementById('f_password');     // <- nuevo
-        const wrapPassword = document.getElementById('wrap_password');  // <- nuevo
+        const fPassword = document.getElementById('f_password');
+        const wrapPassword = document.getElementById('wrap_password');
         const btnGuardar = document.getElementById('btn-guardar');
         const btnCancelar = document.getElementById('btn-cancelar');
 
         let editMode = false;
 
-        // Helpers
-        function escapeHtml(str) {
-            return String(str)
-                .replace(/&/g, '&amp;').replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;').replace(/"/g, '&quot;')
-                .replace(/'/g, '&#039;');
-        }
-
         function goEditMode() {
             editMode = true;
-            // ocultar contraseña en edición
             if (wrapPassword) wrapPassword.style.display = 'none';
             if (fPassword) { fPassword.required = false; fPassword.value = ''; }
-
             btnGuardar.innerHTML = '<i class="save icon"></i> Actualizar';
             btnGuardar.classList.remove('green');
             btnGuardar.classList.add('blue');
@@ -180,10 +181,8 @@
 
         function goCreateMode() {
             editMode = false;
-            // mostrar contraseña en creación
             if (wrapPassword) wrapPassword.style.display = '';
             if (fPassword) { fPassword.required = true; fPassword.value = ''; }
-
             btnGuardar.innerHTML = '<i class="save icon"></i> Guardar';
             btnGuardar.classList.remove('blue');
             btnGuardar.classList.add('green');
@@ -211,7 +210,7 @@
             btn.setAttribute('data-estado', String(Number(u.estado) === 1 ? 1 : 0));
         }
 
-        // CLICK en Editar -> cargar form desde data-*
+        // ====== CLICK Editar (cargar datos al formulario) ======
         tbody.addEventListener('click', function (e) {
             const btn = e.target.closest('.btn-editar-usuario');
             if (!btn) return;
@@ -222,6 +221,7 @@
             hId.value = id || '';
             fUsuario.value = usuario || '';
             fNombre.value = nombre || '';
+
             if (hasJQ) {
                 $('#f_rol').dropdown('set selected', rol || '');
                 $('#f_estado').prop('checked', Number(estado) === 1);
@@ -238,7 +238,7 @@
             btn.closest('tr').classList.add('active');
         });
 
-        // SUBMIT crear/actualizar
+        // ====== SUBMIT (Crear / Actualizar) ======
         form.addEventListener('submit', async function (e) {
             e.preventDefault();
 
@@ -246,10 +246,10 @@
             fd.set('estado', fEstado.checked ? '1' : '0');
 
             if (editMode) {
-                // en edición NO enviar password
+                // En edición NO enviar password
                 fd.delete('password');
             } else {
-                // creación: exigir password
+                // En creación exigir password
                 const pass = (fd.get('password') || '').toString().trim();
                 if (!pass) {
                     Swal.fire({
@@ -268,68 +268,94 @@
                 const ctype = resp.headers.get('content-type') || '';
 
                 if (!resp.ok) {
-                    const txt = ctype.includes('application/json') ? JSON.stringify(await resp.json()) : await resp.text();
+                    const payload = ctype.includes('application/json') ? JSON.stringify(await resp.json(), null, 2) : await resp.text();
                     Swal.fire({
                         icon: 'error',
                         title: 'Error HTTP',
-                        html: `<p>Código: ${resp.status}</p><pre>${txt}</pre>`,
+                        html: `<p>Código: ${resp.status}</p><pre style="text-align:left;white-space:pre-wrap">${escapeHtml(payload)}</pre>`,
                         confirmButtonColor: '#d33'
                     });
                     return;
                 }
 
                 const json = ctype.includes('application/json') ? await resp.json() : { ok: false, message: 'Respuesta no JSON' };
-
                 if (!json.ok) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: json.message || 'No se pudo guardar.',
-                        confirmButtonColor: '#d33'
-                    });
+                    Swal.fire({ icon: 'error', title: 'Error', text: json.message || 'No se pudo guardar.' });
                     return;
                 }
 
                 const u = json.data; // {id, usuario, nombre, rol, estado}
 
                 if (editMode) {
-                    // actualizar fila existente
-                    const row = document.querySelector(`#tbl-usuarios-simple tbody tr[data-id="${CSS.escape(String(u.id))}"]`);
+                    // ====== Actualizar fila existente (incluye Acciones) ======
+                    const row = document.querySelector(`#tbl-usuarios-simple tbody tr[data-id="${cssEscape(String(u.id))}"]`);
                     if (row) {
+                        // celdas 1..4
                         row.querySelector('td:nth-child(1)').textContent = u.nombre;
                         row.querySelector('td:nth-child(2)').textContent = u.usuario;
-                        row.querySelector('td:nth-child(3) .ui.label').lastChild.nodeValue = ' ' + u.rol;
-                        row.querySelector('td:nth-child(4)').innerHTML =
-                            Number(u.estado) === 1 ? '<div class="ui green tiny label">Activo</div>'
-                                : '<div class="ui red tiny label">Inactivo</div>';
 
+                        const rolLabel = row.querySelector('td:nth-child(3) .ui.label');
+                        if (rolLabel) rolLabel.innerHTML = `<i class="id badge icon"></i> ${escapeHtml(u.rol)}`;
+
+                        const estadoTd = row.querySelector('td:nth-child(4)');
+                        estadoTd.innerHTML = Number(u.estado) === 1
+                            ? '<div class="ui green tiny label">Activo</div>'
+                            : '<div class="ui red tiny label">Inactivo</div>';
+
+                        // Acciones (botón habilitar/inhabilitar + botón editar con datasets frescos)
+                        const acciones = row.querySelector('td:nth-child(5) .ui.tiny.buttons');
+                        if (acciones) {
+                            const userId = String(u.id);
+                            const esActivo = Number(u.estado) === 1;
+
+                            acciones.innerHTML = `
+              ${esActivo
+                                    ? `<a class="ui orange icon button" href="/configuracion/usuarios-inhabilitar?id=${encodeURIComponent(userId)}"><i class="ban icon"></i></a>`
+                                    : `<a class="ui green icon button" href="/configuracion/usuarios-habilitar?id=${encodeURIComponent(userId)}"><i class="check icon"></i></a>`
+                                }
+              <a href="#" class="ui blue icon button btn-editar-usuario"
+                 data-id="${escapeHtml(userId)}"
+                 data-usuario="${escapeHtml(u.usuario)}"
+                 data-nombre="${escapeHtml(u.nombre)}"
+                 data-rol="${escapeHtml(u.rol)}"
+                 data-estado="${esActivo ? 1 : 0}">
+                <i class="edit icon"></i>
+              </a>
+            `;
+                        }
+
+                        // Por si conservas el mismo botón editar:
                         const editBtn = row.querySelector('.btn-editar-usuario');
                         if (editBtn) updateEditBtnDataset(editBtn, u);
                     }
                 } else {
-                    // insertar nueva fila arriba
+                    // ====== Insertar nueva fila (arriba) ======
                     const tr = document.createElement('tr');
                     tr.setAttribute('data-id', String(u.id));
+
+                    const esActivo = Number(u.estado) === 1;
                     tr.innerHTML = `
-                <td>${escapeHtml(u.nombre)}</td>
-                <td>${escapeHtml(u.usuario)}</td>
-                <td><div class="ui label"><i class="id badge icon"></i> ${escapeHtml(u.rol)}</div></td>
-                <td>${Number(u.estado) === 1 ? '<div class="ui green tiny label">Activo</div>' : '<div class="ui red tiny label">Inactivo</div>'}</td>
-                <td>
-                    <div class="ui tiny buttons">
-                        ${Number(u.estado) === 1
-                            ? `<a class="ui orange button" href="/configuracion/inhabilitar_usuario?id=${encodeURIComponent(u.id)}"><i class="ban icon"></i></a>`
-                            : `<a class="ui green button" href="/configuracion/habilitar_usuario?id=${encodeURIComponent(u.id)}"><i class="check icon"></i></a>`}
-                        <a href="#" class="ui blue button btn-editar-usuario"
-                           data-id="${escapeHtml(u.id)}"
-                           data-usuario="${escapeHtml(u.usuario)}"
-                           data-nombre="${escapeHtml(u.nombre)}"
-                           data-rol="${escapeHtml(u.rol)}"
-                           data-estado="${Number(u.estado)}">
-                            <i class="edit icon"></i>
-                        </a>
-                    </div>
-                </td>`;
+          <td>${escapeHtml(u.nombre)}</td>
+          <td>${escapeHtml(u.usuario)}</td>
+          <td><div class="ui label"><i class="id badge icon"></i> ${escapeHtml(u.rol)}</div></td>
+          <td>${esActivo ? '<div class="ui green tiny label">Activo</div>' : '<div class="ui red tiny label">Inactivo</div>'}</td>
+          <td>
+            <div class="ui tiny buttons">
+              ${esActivo
+                            ? `<a class="ui orange icon button" href="/configuracion/usuarios-inhabilitar?id=${encodeURIComponent(String(u.id))}"><i class="ban icon"></i></a>`
+                            : `<a class="ui green icon button" href="/configuracion/usuarios-habilitar?id=${encodeURIComponent(String(u.id))}"><i class="check icon"></i></a>`
+                        }
+              <a href="#" class="ui blue icon button btn-editar-usuario"
+                 data-id="${escapeHtml(String(u.id))}"
+                 data-usuario="${escapeHtml(u.usuario)}"
+                 data-nombre="${escapeHtml(u.nombre)}"
+                 data-rol="${escapeHtml(u.rol)}"
+                 data-estado="${esActivo ? 1 : 0}">
+                <i class="edit icon"></i>
+              </a>
+            </div>
+          </td>
+        `;
                     tbody.prepend(tr);
                 }
 
@@ -364,9 +390,6 @@
             resetForm();
         });
 
-        // Inicia en modo crear
-        goCreateMode();
-
         // ====== BÚSQUEDA RÁPIDA ======
         const inputBuscar = document.getElementById('buscar-usuarios');
         const btnLimpiar = document.getElementById('btn-limpiar-busqueda');
@@ -375,33 +398,29 @@
         function normaliza(str) {
             return String(str || '')
                 .toLowerCase()
-                .normalize('NFD')          // separa acentos
-                .replace(/[\u0300-\u036f]/g, ''); // quita acentos
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '');
         }
 
         function filtrarTabla(qRaw) {
             const q = normaliza(qRaw.trim());
             let visibles = 0;
 
-            // palabras clave para estado
             const buscaActivo = ['activo', 'activos'].includes(q);
             const buscaInactivo = ['inactivo', 'inactivos'].includes(q);
 
             tbody.querySelectorAll('tr').forEach(tr => {
-                // toma texto de las 4 primeras celdas: nombre, usuario, rol, estado
                 const tds = tr.querySelectorAll('td');
                 const nombre = normaliza(tds[0]?.innerText || '');
                 const usuario = normaliza(tds[1]?.innerText || '');
                 const rol = normaliza(tds[2]?.innerText || '');
-                const estado = normaliza(tds[3]?.innerText || ''); // tiene "activo"/"inactivo"
+                const estado = normaliza(tds[3]?.innerText || '');
 
                 let match = true;
                 if (q) {
-                    // si el query es "activo/inactivo", fuerza por estado
                     if (buscaActivo) match = estado.includes('activo');
                     else if (buscaInactivo) match = estado.includes('inactivo');
                     else {
-                        // búsqueda general
                         match = (
                             nombre.includes(q) ||
                             usuario.includes(q) ||
@@ -415,7 +434,6 @@
                 if (match) visibles++;
             });
 
-            // contador
             const total = tbody.querySelectorAll('tr').length;
             if (!q) {
                 lblResultado.textContent = `Mostrando ${visibles} de ${total} usuarios.`;
@@ -424,25 +442,20 @@
             }
         }
 
-        // debounce para no filtrar en cada pulsación
         let tDebounce;
         inputBuscar?.addEventListener('input', () => {
             clearTimeout(tDebounce);
             tDebounce = setTimeout(() => filtrarTabla(inputBuscar.value), 150);
         });
-
-        // botón limpiar
         btnLimpiar?.addEventListener('click', () => {
             inputBuscar.value = '';
             filtrarTabla('');
             inputBuscar.focus();
         });
 
-        // al cargar, muestra conteo
         filtrarTabla('');
 
-
-        // Delegación: click en habilitar/inhabilitar
+        // ====== Delegación: click en habilitar/inhabilitar ======
         tbody.addEventListener('click', async function (e) {
             const a = e.target.closest('a');
             if (!a) return;
@@ -473,7 +486,6 @@
                     ? `/configuracion/usuarios-inhabilitar?id=${encodeURIComponent(userId)}`
                     : `/configuracion/usuarios-habilitar?id=${encodeURIComponent(userId)}`;
 
-                // RUTAS GET -> usa GET y exige JSON
                 const resp = await fetch(url, {
                     method: 'GET',
                     headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
@@ -481,11 +493,10 @@
 
                 const ctype = resp.headers.get('content-type') || '';
                 if (!resp.ok) {
-                    const txt = ctype.includes('application/json') ? JSON.stringify(await resp.json()) : await resp.text();
-                    Swal.fire({ icon: 'error', title: 'Error', html: `<pre>${txt}</pre>` });
+                    const payload = ctype.includes('application/json') ? JSON.stringify(await resp.json(), null, 2) : await resp.text();
+                    Swal.fire({ icon: 'error', title: 'Error', html: `<pre style="text-align:left;white-space:pre-wrap">${escapeHtml(payload)}</pre>` });
                     return;
                 }
-
                 if (!ctype.includes('application/json')) {
                     Swal.fire({ icon: 'error', title: 'Respuesta inesperada', text: 'El servidor no devolvió JSON.' });
                     return;
@@ -497,26 +508,31 @@
                     return;
                 }
 
-                // Actualizar UI
+                // Actualizar UI (estado + acciones + datasets del botón editar)
                 const nuevoEstado = Number(json.estado);
                 row.querySelector('td:nth-child(4)').innerHTML = nuevoEstado === 1
                     ? '<div class="ui green tiny label">Activo</div>'
                     : '<div class="ui red tiny label">Inactivo</div>';
 
                 const accionesTd = row.querySelector('td:nth-child(5) .ui.tiny.buttons');
+                const rolText = (row.querySelector('td:nth-child(3) .ui.label')?.textContent || '').trim(); // mantener rol visible
+                const nombreText = (row.querySelector('td:nth-child(1)')?.textContent || '').trim();
+                const usuarioText = (row.querySelector('td:nth-child(2)')?.textContent || '').trim();
+
                 accionesTd.innerHTML = `
-                ${nuevoEstado === 1
+        ${nuevoEstado === 1
                         ? `<a class="ui orange icon button" href="/configuracion/usuarios-inhabilitar?id=${encodeURIComponent(userId)}"><i class="ban icon"></i></a>`
-                        : `<a class="ui green icon button" href="/configuracion/usuarios-habilitar?id=${encodeURIComponent(userId)}"><i class="check icon"></i></a>`}
-                                    <a href="#" class="ui blue icon button btn-editar-usuario"
-                                        data-id="${escapeHtml(userId)}"
-                                        data-usuario="${escapeHtml(row.querySelector('td:nth-child(2)').textContent.trim())}"
-                                        data-nombre="${escapeHtml(row.querySelector('td:nth-child(1)').textContent.trim())}"
-                                        data-rol="${escapeHtml(row.querySelector('td:nth-child(3) .ui.label').innerText.trim())}"
-                                        data-estado="${nuevoEstado}">
-                                        <i class="edit icon"></i>
-                                    </a>
-                                    `;
+                        : `<a class="ui green icon button" href="/configuracion/usuarios-habilitar?id=${encodeURIComponent(userId)}"><i class="check icon"></i></a>`
+                    }
+        <a href="#" class="ui blue icon button btn-editar-usuario"
+           data-id="${escapeHtml(userId)}"
+           data-usuario="${escapeHtml(usuarioText)}"
+           data-nombre="${escapeHtml(nombreText)}"
+           data-rol="${escapeHtml(rolText)}"
+           data-estado="${nuevoEstado}">
+          <i class="edit icon"></i>
+        </a>
+      `;
 
                 Swal.fire({
                     icon: 'success',
@@ -529,10 +545,7 @@
             }
         });
 
-
+        // Inicia en modo crear
+        goCreateMode();
     });
-
-
-
-
 </script>
