@@ -2,6 +2,21 @@
     <div class="ui grid stackable">
         <!-- Columna izquierda: TABLA -->
         <div class="twelve wide column">
+            <div class="ui grid">
+                <div class="sixteen wide column">
+                    <div class="ui action input fluid">
+                        <input type="text" id="buscar-usuarios"
+                            placeholder="Buscar por nombre, usuario, rol o estado (activo/inactivo)...">
+                        <button class="ui icon button" id="btn-limpiar-busqueda" title="Limpiar">
+                            <i class="close icon"></i>
+                        </button>
+                    </div>
+                    <div class="pt-2">
+                        <span class="ui tiny grey text" id="resultado-busqueda"></span>
+                    </div>
+                </div>
+            </div>
+
             <table class="ui celled striped compact selectable table" id="tbl-usuarios-simple">
                 <thead>
                     <tr>
@@ -351,85 +366,158 @@
 
         // Inicia en modo crear
         goCreateMode();
-    });
 
+        // ====== BÚSQUEDA RÁPIDA ======
+        const inputBuscar = document.getElementById('buscar-usuarios');
+        const btnLimpiar = document.getElementById('btn-limpiar-busqueda');
+        const lblResultado = document.getElementById('resultado-busqueda');
 
+        function normaliza(str) {
+            return String(str || '')
+                .toLowerCase()
+                .normalize('NFD')          // separa acentos
+                .replace(/[\u0300-\u036f]/g, ''); // quita acentos
+        }
 
-    // Delegación: click en habilitar/inhabilitar
-    tbody.addEventListener('click', async function (e) {
-        const a = e.target.closest('a');
-        if (!a) return;
+        function filtrarTabla(qRaw) {
+            const q = normaliza(qRaw.trim());
+            let visibles = 0;
 
-        const href = a.getAttribute('href') || '';
-        const isInhabilitar = href.includes('/configuracion/usuarios-inhabilitar');
-        const isHabilitar = href.includes('/configuracion/usuarios-habilitar');
-        if (!isInhabilitar && !isHabilitar) return;
+            // palabras clave para estado
+            const buscaActivo = ['activo', 'activos'].includes(q);
+            const buscaInactivo = ['inactivo', 'inactivos'].includes(q);
 
-        e.preventDefault();
+            tbody.querySelectorAll('tr').forEach(tr => {
+                // toma texto de las 4 primeras celdas: nombre, usuario, rol, estado
+                const tds = tr.querySelectorAll('td');
+                const nombre = normaliza(tds[0]?.innerText || '');
+                const usuario = normaliza(tds[1]?.innerText || '');
+                const rol = normaliza(tds[2]?.innerText || '');
+                const estado = normaliza(tds[3]?.innerText || ''); // tiene "activo"/"inactivo"
 
-        const row = a.closest('tr');
-        const userId = row?.getAttribute('data-id');
-        if (!userId) return;
+                let match = true;
+                if (q) {
+                    // si el query es "activo/inactivo", fuerza por estado
+                    if (buscaActivo) match = estado.includes('activo');
+                    else if (buscaInactivo) match = estado.includes('inactivo');
+                    else {
+                        // búsqueda general
+                        match = (
+                            nombre.includes(q) ||
+                            usuario.includes(q) ||
+                            rol.includes(q) ||
+                            estado.includes(q)
+                        );
+                    }
+                }
 
-        // Confirm
-        const { isConfirmed } = await Swal.fire({
-            icon: 'question',
-            title: isInhabilitar ? 'Inhabilitar usuario' : 'Habilitar usuario',
-            text: isInhabilitar
-                ? 'El usuario no podrá acceder al sistema. ¿Continuar?'
-                : 'El usuario podrá acceder al sistema. ¿Continuar?',
-            showCancelButton: true,
-            confirmButtonText: isInhabilitar ? 'Sí, inhabilitar' : 'Sí, habilitar',
-            cancelButtonText: 'Cancelar'
-        });
-        if (!isConfirmed) return;
-
-        // Llamada AJAX
-        try {
-            const url = isInhabilitar
-                ? `/configuracion/usuarios-inhabilitar?id=${encodeURIComponent(userId)}`
-                : `/configuracion/usuarios-habilitar?id=${encodeURIComponent(userId)}`;
-
-            const resp = await fetch(url, {
-                method: 'POST', // usa POST para cambiar estado
-                headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
+                tr.style.display = match ? '' : 'none';
+                if (match) visibles++;
             });
 
-            // Soporte si tu controlador redirige cuando no es AJAX
-            const ctype = resp.headers.get('content-type') || '';
-            if (resp.status === 401) { window.location = '/login'; return; }
-            if (resp.status === 403) {
-                Swal.fire({ icon: 'error', title: 'Sin permisos', text: 'No tienes acceso a esta acción.' });
-                return;
+            // contador
+            const total = tbody.querySelectorAll('tr').length;
+            if (!q) {
+                lblResultado.textContent = `Mostrando ${visibles} de ${total} usuarios.`;
+            } else {
+                lblResultado.textContent = `Coincidencias: ${visibles} de ${total}.`;
             }
-            if (!resp.ok) {
-                const txt = ctype.includes('application/json') ? JSON.stringify(await resp.json()) : await resp.text();
-                Swal.fire({ icon: 'error', title: 'Error', html: `<pre>${txt}</pre>` });
-                return;
-            }
+        }
 
-            // Si devuelve JSON
-            let json = { ok: true, estado: isHabilitar ? 1 : 0, message: '' };
-            if (ctype.includes('application/json')) json = await resp.json();
-            if (!json.ok) {
-                Swal.fire({ icon: 'error', title: 'No se pudo actualizar', text: json.message || '' });
-                return;
-            }
+        // debounce para no filtrar en cada pulsación
+        let tDebounce;
+        inputBuscar?.addEventListener('input', () => {
+            clearTimeout(tDebounce);
+            tDebounce = setTimeout(() => filtrarTabla(inputBuscar.value), 150);
+        });
 
-            // Actualizar UI de la fila
-            const nuevoEstado = Number(json.estado ?? (isHabilitar ? 1 : 0));
-            // Columna estado (4ta)
-            row.querySelector('td:nth-child(4)').innerHTML = nuevoEstado === 1
-                ? '<div class="ui green tiny label">Activo</div>'
-                : '<div class="ui red tiny label">Inactivo</div>';
+        // botón limpiar
+        btnLimpiar?.addEventListener('click', () => {
+            inputBuscar.value = '';
+            filtrarTabla('');
+            inputBuscar.focus();
+        });
 
-            // Botones (5ta) — re-render
-            const accionesTd = row.querySelector('td:nth-child(5) .ui.tiny.buttons');
-            accionesTd.innerHTML = `
+        // al cargar, muestra conteo
+        filtrarTabla('');
+
+
+
+        // Delegación: click en habilitar/inhabilitar
+        tbody.addEventListener('click', async function (e) {
+            const a = e.target.closest('a');
+            if (!a) return;
+
+            const href = a.getAttribute('href') || '';
+            const isInhabilitar = href.includes('/configuracion/usuarios-inhabilitar');
+            const isHabilitar = href.includes('/configuracion/usuarios-habilitar');
+            if (!isInhabilitar && !isHabilitar) return;
+
+            e.preventDefault();
+
+            const row = a.closest('tr');
+            const userId = row?.getAttribute('data-id');
+            if (!userId) return;
+
+            // Confirm
+            const { isConfirmed } = await Swal.fire({
+                icon: 'question',
+                title: isInhabilitar ? 'Inhabilitar usuario' : 'Habilitar usuario',
+                text: isInhabilitar
+                    ? 'El usuario no podrá acceder al sistema. ¿Continuar?'
+                    : 'El usuario podrá acceder al sistema. ¿Continuar?',
+                showCancelButton: true,
+                confirmButtonText: isInhabilitar ? 'Sí, inhabilitar' : 'Sí, habilitar',
+                cancelButtonText: 'Cancelar'
+            });
+            if (!isConfirmed) return;
+
+            // Llamada AJAX
+            try {
+                const url = isInhabilitar
+                    ? `/configuracion/usuarios-inhabilitar?id=${encodeURIComponent(userId)}`
+                    : `/configuracion/usuarios-habilitar?id=${encodeURIComponent(userId)}`;
+
+                const resp = await fetch(url, {
+                    method: 'POST', // usa POST para cambiar estado
+                    headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
+                });
+
+                // Soporte si tu controlador redirige cuando no es AJAX
+                const ctype = resp.headers.get('content-type') || '';
+                if (resp.status === 401) { window.location = '/login'; return; }
+                if (resp.status === 403) {
+                    Swal.fire({ icon: 'error', title: 'Sin permisos', text: 'No tienes acceso a esta acción.' });
+                    return;
+                }
+                if (!resp.ok) {
+                    const txt = ctype.includes('application/json') ? JSON.stringify(await resp.json()) : await resp.text();
+                    Swal.fire({ icon: 'error', title: 'Error', html: `<pre>${txt}</pre>` });
+                    return;
+                }
+
+                // Si devuelve JSON
+                let json = { ok: true, estado: isHabilitar ? 1 : 0, message: '' };
+                if (ctype.includes('application/json')) json = await resp.json();
+                if (!json.ok) {
+                    Swal.fire({ icon: 'error', title: 'No se pudo actualizar', text: json.message || '' });
+                    return;
+                }
+
+                // Actualizar UI de la fila
+                const nuevoEstado = Number(json.estado ?? (isHabilitar ? 1 : 0));
+                // Columna estado (4ta)
+                row.querySelector('td:nth-child(4)').innerHTML = nuevoEstado === 1
+                    ? '<div class="ui green tiny label">Activo</div>'
+                    : '<div class="ui red tiny label">Inactivo</div>';
+
+                // Botones (5ta) — re-render
+                const accionesTd = row.querySelector('td:nth-child(5) .ui.tiny.buttons');
+                accionesTd.innerHTML = `
       ${nuevoEstado === 1
-                    ? `<a class="ui orange button" href="/configuracion/usuarios-inhabilitar?id=${encodeURIComponent(userId)}"><i class="ban icon"></i></a>`
-                    : `<a class="ui green button" href="/configuracion/usuarios-habilitar?id=${encodeURIComponent(userId)}"><i class="check icon"></i></a>`}
-      <a href="#" class="ui blue button btn-editar-usuario"
+                        ? `<a class="ui orange icon button" href="/configuracion/usuarios-inhabilitar?id=${encodeURIComponent(userId)}"><i class="ban icon"></i></a>`
+                        : `<a class="ui green icon button" href="/configuracion/usuarios-habilitar?id=${encodeURIComponent(userId)}"><i class="check icon"></i></a>`}
+      <a href="#" class="ui blue icon button btn-editar-usuario"
          data-id="${escapeHtml(userId)}"
          data-usuario="${escapeHtml(row.querySelector('td:nth-child(2)').textContent.trim())}"
          data-nombre="${escapeHtml(row.querySelector('td:nth-child(1)').textContent.trim())}"
@@ -439,15 +527,21 @@
       </a>
     `;
 
-            Swal.fire({
-                icon: 'success',
-                title: 'Hecho',
-                text: json.message || (nuevoEstado === 1 ? 'Usuario habilitado' : 'Usuario inhabilitado')
-            });
-        } catch (err) {
-            console.error(err);
-            Swal.fire({ icon: 'error', title: 'Error de red', text: 'No se pudo completar la acción.' });
-        }
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Hecho',
+                    text: json.message || (nuevoEstado === 1 ? 'Usuario habilitado' : 'Usuario inhabilitado')
+                });
+            } catch (err) {
+                console.error(err);
+                Swal.fire({ icon: 'error', title: 'Error de red', text: 'No se pudo completar la acción.' });
+            }
+        });
+
+
     });
+
+
+
 
 </script>
