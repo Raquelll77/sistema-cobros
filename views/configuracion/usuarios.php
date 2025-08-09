@@ -505,18 +505,18 @@
 
                 const accionesTd = row.querySelector('td:nth-child(5) .ui.tiny.buttons');
                 accionesTd.innerHTML = `
-      ${nuevoEstado === 1
+                ${nuevoEstado === 1
                         ? `<a class="ui orange icon button" href="/configuracion/usuarios-inhabilitar?id=${encodeURIComponent(userId)}"><i class="ban icon"></i></a>`
                         : `<a class="ui green icon button" href="/configuracion/usuarios-habilitar?id=${encodeURIComponent(userId)}"><i class="check icon"></i></a>`}
-      <a href="#" class="ui blue icon button btn-editar-usuario"
-         data-id="${escapeHtml(userId)}"
-         data-usuario="${escapeHtml(row.querySelector('td:nth-child(2)').textContent.trim())}"
-         data-nombre="${escapeHtml(row.querySelector('td:nth-child(1)').textContent.trim())}"
-         data-rol="${escapeHtml(row.querySelector('td:nth-child(3) .ui.label').innerText.trim())}"
-         data-estado="${nuevoEstado}">
-        <i class="edit icon"></i>
-      </a>
-    `;
+                                    <a href="#" class="ui blue icon button btn-editar-usuario"
+                                        data-id="${escapeHtml(userId)}"
+                                        data-usuario="${escapeHtml(row.querySelector('td:nth-child(2)').textContent.trim())}"
+                                        data-nombre="${escapeHtml(row.querySelector('td:nth-child(1)').textContent.trim())}"
+                                        data-rol="${escapeHtml(row.querySelector('td:nth-child(3) .ui.label').innerText.trim())}"
+                                        data-estado="${nuevoEstado}">
+                                        <i class="edit icon"></i>
+                                    </a>
+                                    `;
 
                 Swal.fire({
                     icon: 'success',
