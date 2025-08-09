@@ -180,7 +180,10 @@
                 <!-- Contenido de cada pestaña -->
                 <div class="tab-content active" id="gestionar">
                     <h2>Gestionar Cliente</h2>
-                    <form>
+                    <form id="form-gestion">
+                        <input type="hidden" name="prenumero"
+                            value="<?= htmlspecialchars($prenumero ?? ($_GET['prenumero'] ?? '')) ?>">
+
                         <div class="contenido-detalle">
 
                             <div class="campo">
@@ -348,146 +351,100 @@
 <script>
 
     const codigosPositivos = <?= json_encode($codigosPositivosArray) ?>;
-    function enviarDatos() {
-        const params = {};
-        $("#frm-envio-datos [name]").each(function () {
-            const key = $(this).prop('name');
-            const value = $(this).prop('disabled') ? null : $(this).val(); // Campos deshabilitados se envían como null
-            params[key] = value;
-        });
+    function enviarGestion() {
+        const form = document.getElementById('form-gestion');
+        const data = new FormData(form);
 
-        const urlParams = new URLSearchParams(window.location.search);
-        params.prenumero = urlParams.get('prenumero');
+        const cp = document.getElementById('comentarioPermanente');
+        if (cp) data.set('comentarioPermanente', cp.value); // <- clave
 
-        // Mostrar el loader
         Swal.fire({
             title: "Guardando gestión...",
             text: "Por favor espera mientras procesamos los datos.",
             allowOutsideClick: false,
-            didOpen: () => {
-                Swal.showLoading(); // Muestra el ícono de cargando
-            },
+            didOpen: () => Swal.showLoading(),
         });
 
-        $.ajax({
-            url: "/prestamos/detalle",
+        fetch("/prestamos/detalle", {
             method: "POST",
-            dataType: "json",
-            data: params,
-            success(response) {
+            body: data
+        })
+            .then(async res => {
+                const ct = res.headers.get('content-type') || '';
+                if (!ct.includes('application/json')) throw new Error(await res.text());
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                return res.json();
+            })
+            .then(response => {
+                if (response.status !== 'success') throw new Error(response.message || 'No se pudo guardar');
 
-                if (response.status === 'success') {
+                Swal.fire({
+                    icon: "success",
+                    title: "Gestión guardada exitosamente",
+                    showConfirmButton: false,
+                    timer: 1500
+                });
 
-                    Swal.fire({
-                        icon: "success",
-                        title: "Gestión guardada exitosamente",
-                        showConfirmButton: false,
-                        timer: 1500,
-                    });
+                // Render historial
+                const cont = document.querySelector('.historial-gestion-cards');
+                cont.innerHTML = '';
+                response.historialGestiones.forEach(g => {
+                    let html = `
+          <div class="gestion-card">
+            <div class="encabezado-gestion">
+              <span class="codigo-resultado">${g.codigo_resultado ?? ''}</span>
+              <span class="fecha-hora">${g.fecha_creacion ?? ''}</span>
+            </div>
+            <p class="comentario">${g.comentario ?? ''}</p>
+            <p class="numero-contactado">Número Contactado: ${g.numero_contactado ?? ''}</p>
+            <div class="detalles-secundarios">
+              <p><strong>Fecha de Revisión:</strong> ${g.fecha_revision ?? ''}</p>`;
+                    if (codigosPositivos.includes(g.codigo_resultado)) {
+                        html += `<p><strong>Fecha de Promesa:</strong> ${g.fecha_promesa ?? ''}</p>`;
+                    }
+                    html += `
+              <p class="nombre-gestor">Creado por: ${g.creado_por ?? ''}</p>
+            </div>
+          </div>`;
+                    cont.insertAdjacentHTML('beforeend', html);
+                });
 
-
-                    // Actualizar el historial de gestiones
-                    const historialGestionesContainer = document.querySelector('.historial-gestion-cards');
-                    historialGestionesContainer.innerHTML = '';
-
-                    // Recorrer las gestiones y renderizarlas dinámicamente
-                    response.historialGestiones.forEach(gestion => {
-                        let gestionCard = `
-                        <div class="gestion-card">
-                            <div class="encabezado-gestion">
-                                <span class="codigo-resultado">${gestion.codigo_resultado}</span>
-                                <span class="fecha-hora">${gestion.fecha_creacion}</span>
-                            </div>
-                            <p class="comentario">${gestion.comentario}</p>
-                            <p class="numero-contactado">Número Contactado: ${gestion.numero_contactado}</p>
-                            <div class="detalles-secundarios">
-                                <p><strong>Fecha de Revisión:</strong> ${gestion.fecha_revision}</p>
-                    `;
-                        /* 
-                                                // Solo incluir la fecha de promesa si el código es "PROMESA DE PAGO" o "ABONO"
-                                                if (gestion.codigo_resultado === "PROMESA DE PAGO" || gestion.codigo_resultado === "ABONO") {
-                                                    gestionCard += `
-                                                    <p><strong>Fecha de Promesa:</strong> ${gestion.fecha_promesa}</p>
-                                                `;
-                                                } */
-
-                        // Validar de forma dinámica si el código es positivo usando el arreglo inyectado
-                        if (codigosPositivos.includes(gestion.codigo_resultado)) {
-                            gestionCard += `
-                                <p><strong>Fecha de Promesa:</strong> ${gestion.fecha_promesa}</p>
-                            `;
-                        }
-
-                        gestionCard += `
-                                <p class="nombre-gestor">Creado por: ${gestion.creado_por}</p>
-                            </div>
-                        </div>
-                    `;
-
-                        historialGestionesContainer.insertAdjacentHTML('beforeend', gestionCard);
-
-                        // Actualizar comentario permanente
-                        const comentarioPermanente = document.getElementById('comentarioPermanente');
-                        if (comentarioPermanente) {
-                            comentarioPermanente.value = response.comentarioPermanente.comentario;
-                        }
-
-                    });
-
-                    document.querySelector("form").reset();
-
-
-                } else {
-                    console.error(response.message);
+                // Comentario permanente
+                const cp = document.getElementById('comentarioPermanente');
+                if (cp && response.comentarioPermanente) {
+                    cp.value = response.comentarioPermanente.comentario || '';
                 }
-            },
-            error(response) {
-                console.error('Error al guardar la gestión:', response);
 
-            }
-        });
+                // Reset solo del form de gestión
+                form.reset();
+                document.getElementById('fechaPromesa').disabled = true;
+                document.getElementById('montoPromesa').disabled = true;
+            })
+            .catch(err => {
+                console.error(err);
+                Swal.fire({ icon: 'error', title: 'Error', text: err.message });
+            });
     }
 
-    // Capturar el envío del formulario y evitar el recargo de la página
-    document.querySelector("form").addEventListener("submit", function (event) {
-        event.preventDefault();
-        enviarDatos();
+    // Listener del form de gestión (solo ese)
+    document.getElementById('form-gestion').addEventListener('submit', function (e) {
+        e.preventDefault();
+        enviarGestion();
     });
-    // Escuchar el cambio en el campo de selección "Código de Resultado"
 
+    // Habilitar/Deshabilitar campos por código
     document.getElementById("codigoResultado").addEventListener("change", function () {
-        const codigo = this.value; // Obtener el valor seleccionado
         const fechaPromesa = document.getElementById("fechaPromesa");
         const montoPromesa = document.getElementById("montoPromesa");
-
-
-        // Habilitar o deshabilitar el campo de "Fecha de Promesa"
-        /* if (codigo === "PROMESA DE PAGO" || codigo === "ABONO") {
-            fechaPromesa.disabled = false; // Habilitar el campo
+        if (codigosPositivos.includes(this.value)) {
+            fechaPromesa.disabled = false;
             montoPromesa.disabled = false;
         } else {
-            fechaPromesa.value = ""; // Limpiar el valor actual si hay
-            fechaPromesa.disabled = true; // Deshabilitar el campo
-            montoPromesa.disabled = true;
-        } */
-
-        if (codigosPositivos.includes(codigo)) {
-            fechaPromesa.disabled = false; // Habilitar el campo
-            montoPromesa.disabled = false;
-        } else {
-            fechaPromesa.value = ""; // Limpiar el valor actual si hay
-            fechaPromesa.disabled = true; // Deshabilitar el campo
+            fechaPromesa.value = "";
+            montoPromesa.value = "";
+            fechaPromesa.disabled = true;
             montoPromesa.disabled = true;
         }
     });
-
-    /*     const btnBack = document.getElementById('btn-back');
-        const urlParams = new URLSearchParams(window.location.search);
-        const tab = urlParams.get('tab'); // Obtiene el tab desde la URL
-    
-        if (btnBack && tab) {
-            btnBack.href = `/cobros?tab=${tab}`; // Redirige al tab correcto
-        }
-     */
 
 </script>
