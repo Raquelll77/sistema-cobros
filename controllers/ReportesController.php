@@ -225,6 +225,7 @@ class ReportesController
             'A1' => 'Prenumero',
             'B1' => 'Nombre',
             'C1' => 'Pago',
+            'D1' => 'Gestor',
         ];
 
 
@@ -235,9 +236,10 @@ class ReportesController
         // Agregar datos
         $fila = 2;
         foreach ($pagos as $pago) {
-            $sheet->setCellValue("A{$fila}", $pago['prenumero'] ?? 'N/A');
-            $sheet->setCellValue("B{$fila}", $pago['prenombre'] ?? 'N/A');
-            $sheet->setCellValue("C{$fila}", $pago['CrMoValor'] ?? 'N/A');
+            $sheet->setCellValue("A{$fila}", $pago['PreNumero'] ?? 'N/A');
+            $sheet->setCellValue("B{$fila}", $pago['PreNombre'] ?? 'N/A');
+            $sheet->setCellValue("C{$fila}", $pago['CrMoValor'] ?? 0);
+            $sheet->setCellValue("D{$fila}", $pago['usuarioCobros'] ?? 'Sin Asignar');
             $fila++;
         }
 
