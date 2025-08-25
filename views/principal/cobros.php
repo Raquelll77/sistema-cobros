@@ -19,7 +19,7 @@
         <h1 class="titulo-pagina">Busqueda de Clientes</h1>
 
         <form action="" method="POST" class="contenedor-95">
-            <input type="hidden" name="tab" id="hidden-tab" value="<?= $tab ?>">
+            <input type="hidden" name="tab" id="hidden-tab" value="<?= htmlspecialchars($tab) ?>">
             <div class="contenido">
                 <div class="campo">
                     <label for="identidad">Busqueda por identidad</label>
@@ -83,53 +83,31 @@
     <div class="tab-content <?= $tab === 'clientes-asignados' ? 'active' : '' ?>" id="clientes-asignados">
         <h1 class="text-second">Clientes Asignados</h1>
         <div class="tabla-contenedor">
-
-            <?php if (!empty($prestamoXGestor)) { ?>
-                <table id="clientes-asignados-table" class="display">
-                    <thead>
-                        <tr>
-                            <th>CardCode</th>
-                            <th>Nombre</th>
-                            <th>Identidad</th>
-                            <th>PreNúmero</th>
-                            <th>Fecha de Aprobación</th>
-                            <th>Estatus</th>
-                            <th>Comentario</th>
-                            <th>Cod Resultado</th>
-                            <th>Fecha Revisión</th>
-                            <th>Pagos</th>
-                            <th>Atraso</th>
-                            <th>Cuotas Atraso</th>
-                            <th>Fecha de Pago</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($prestamoXGestor as $prestamo): ?>
-                            <tr class="clickable-row"
-                                data-href="/prestamos/detalle?prenumero=<?php echo urlencode($prestamo['PreNumero']); ?>&identidad=<?php echo urlencode($prestamo['ClNumID']); ?>&fecha=<?php echo urlencode($prestamo['PreFecAprobacion']); ?>&tab=clientes-asignados">
-                                <td><?php echo htmlspecialchars($prestamo['ClReferencia']); ?></td>
-                                <td><?php echo htmlspecialchars($prestamo['PreNombre']); ?></td>
-                                <td><?php echo htmlspecialchars($prestamo['ClNumID']); ?></td>
-                                <td><?php echo htmlspecialchars($prestamo['PreNumero']); ?></td>
-                                <td><?php echo htmlspecialchars($prestamo['PreFecAprobacion']); ?></td>
-                                <td><?php echo htmlspecialchars($prestamo['PreSalCapital']); ?></td>
-                                <td><?php echo htmlspecialchars(substr($prestamo['PreComentario'], 0, 55)) . (strlen($prestamo['PreComentario']) > 55 ? '...' : ''); ?>
-                                </td>
-                                <td><?php echo htmlspecialchars($prestamo['codigo_resultado']); ?></td>
-                                <td><?php echo htmlspecialchars($prestamo['fecha_revision']); ?></td>
-                                <td><?php echo number_format($prestamo['total_pagos_mes_actual'], 2); ?></td>
-                                <td><?php echo htmlspecialchars($prestamo['MaxDiasAtraso']); ?></td>
-                                <td><?php echo htmlspecialchars($prestamo['CuotasEnAtraso']); ?></td>
-                                <td><?php echo htmlspecialchars($prestamo['DiaPagoCuota']); ?></td>
-                            </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
-            <?php } else { ?>
-                <p>No se encontraron resultados.</p>
-            <?php } ?>
+            <table id="clientes-asignados-table" class="display">
+                <thead>
+                    <tr>
+                        <th>CardCode</th>
+                        <th>Nombre</th>
+                        <th>Identidad</th>
+                        <th>PreNúmero</th>
+                        <th>Fecha de Aprobación</th>
+                        <th>Estatus</th>
+                        <th>Comentario</th>
+                        <th>Cod Resultado</th>
+                        <th>Fecha Revisión</th>
+                        <th>Pagos</th>
+                        <th>Atraso</th>
+                        <th>Cuotas Atraso</th>
+                        <th>Fecha de Pago</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Vacío: lo llenará DataTables con AJAX -->
+                </tbody>
+            </table>
         </div>
     </div>
+
 
 
 
@@ -146,32 +124,97 @@
 
 <!-- Incluir DataTables y el script -->
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.dataTables.min.css">
 <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.colVis.min.js"></script>
 
 <script>
-
-    // Inicializar DataTables
-    const table = $('#clientes-asignados-table').DataTable({
-        "paging": true,
-        "searching": true,
-        "ordering": true,
-        "info": true,
-        "responsive": true,
-        "language": {
-            "lengthMenu": "Mostrar _MENU_ registros por página",
-            "zeroRecords": "No se encontraron resultados",
-            "info": "Mostrando página _PAGE_ de _PAGES_",
-            "infoEmpty": "No hay registros disponibles",
-            "infoFiltered": "(filtrado de _MAX_ registros en total)",
-            "search": "Buscar:",
-            "pageLength": 25,
-            "paginate": {
-                "previous": "Anterior",
-                "next": "Siguiente"
+    // Inicializar DataTable
+    var tablaAsignados = $('#clientes-asignados-table').DataTable({
+        processing: true,
+        serverSide: false,
+        ajax: {
+            url: "<?= BASE_URL ?>/cobros/listar-asignados",
+            dataSrc: function (json) {
+                console.log("JSON recibido:", json);
+                return json.data;
             }
+        },
+        pageLength: 25,
+        scrollX: true,
+        autoWidth: false,
+        deferRender: true,
+        columns: [
+            { data: "ClReferencia", title: "CardCode", defaultContent: "" },
+            { data: "PreNombre", title: "Nombre", defaultContent: "" },
+            { data: "ClNumID", title: "Identidad", defaultContent: "" },
+            { data: "PreNumero", title: "PreNúmero", defaultContent: "" },
+            { data: "PreFecAprobacion", title: "Fecha de Aprobación", defaultContent: "" },
+            { data: "PreSalCapital", title: "Estatus", defaultContent: "" },
+            { data: "PreComentario", title: "Comentario", defaultContent: "" },
+            { data: "codigo_resultado", title: "Cod Resultado", defaultContent: "" },
+            { data: "fecha_revision", title: "Fecha Revisión", defaultContent: "" },
+            { data: "total_pagos_mes_actual", title: "Pagos", defaultContent: "" },
+            { data: "MaxDiasAtraso", title: "Atraso", defaultContent: "" },
+            { data: "CuotasEnAtraso", title: "Cuotas Atraso", defaultContent: "" },
+            { data: "DiaPagoCuota", title: "Fecha de Pago", defaultContent: "" }
+        ],
+        dom: 'Bfrtip',
+        buttons: [
+            {
+                extend: 'colvis',
+                text: '<i class="columns icon"></i> Columnas',
+                collectionLayout: 'fixed two-column',
+                className: 'buttonColumn'
+            }
+        ],
+        language: {
+            lengthMenu: "Mostrar _MENU_ registros por página",
+            zeroRecords: "No se encontraron resultados",
+            info: "Mostrando página _PAGE_ de _PAGES_",
+            infoEmpty: "No hay registros disponibles",
+            infoFiltered: "(filtrado de _MAX_ registros en total)",
+            search: "Buscar:",
+            paginate: {
+                previous: "Anterior",
+                next: "Siguiente"
+            }
+        },
+        createdRow: function (row, data) {
+            const href = "<?= BASE_URL ?>/prestamos/detalle"
+                + "?prenumero=" + encodeURIComponent(data.PreNumero || "")
+                + "&identidad=" + encodeURIComponent(data.ClNumID || "")
+                + "&fecha=" + encodeURIComponent(data.PreFecAprobacion || "")
+                + "&tab=clientes-asignados";
+
+            $(row)
+                .addClass('clickable-row')
+                .attr('data-href', href);
         }
     });
+
+    // 🔹 Forzar que el header se ajuste cuando se muestra el tab
+    document.querySelectorAll('.tab-button').forEach(button => {
+        button.addEventListener('click', function () {
+            const targetTab = this.getAttribute('data-tab');
+            if (targetTab === "clientes-asignados") {
+                setTimeout(() => {
+                    tablaAsignados.columns.adjust().draw();
+                }, 200); // pequeño delay para que ya esté visible el contenedor
+            }
+        });
+    });
+
+    // 🔹 También al terminar la primera carga
+    tablaAsignados.on('init', function () {
+        setTimeout(() => {
+            tablaAsignados.columns.adjust().draw();
+        }, 200);
+    });
+
+
 
     // Asignar evento de clic a las filas después de inicializar DataTables
     $('#clientes-asignados-table tbody').on('click', 'tr.clickable-row', function () {
@@ -182,6 +225,15 @@
     });
 
     document.addEventListener('DOMContentLoaded', function () {
+
+        const form = document.querySelector('form.contenedor-95');
+        if (form) {
+            form.addEventListener('submit', function () {
+                const activeBtn = document.querySelector('.tab-button.active');
+                const activeTab = activeBtn ? activeBtn.dataset.tab : 'busqueda-clientes';
+                document.getElementById('hidden-tab').value = activeTab;
+            });
+        }
         // Cambiar la pestaña activa al hacer clic
         document.querySelectorAll('.tab-button').forEach(button => {
             button.addEventListener('click', function () {

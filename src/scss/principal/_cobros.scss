@@ -103,7 +103,10 @@ table {
         background-color: lighten(v.$gris, 40%);
         cursor: pointer;
     }
+
 }
+
+
 
 // Mensaje de no resultados
 p {
@@ -154,4 +157,9 @@ p {
             }
         }
     }
+}
+.buttons-colvis{
+    background-color: v.$cyan !important;
+    color: v.$blanco !important;
+    font-weight: bold;
 }
