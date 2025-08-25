@@ -233,41 +233,48 @@
                     <h2>Historial de Gestiones</h2>
                     <div class="scrollable-gestiones">
 
-                        <div class="historial-gestion-cards">
-                            <?php if (!empty($historialGestiones) && is_iterable($historialGestiones)) { ?>
+                        <?php if (!empty($historialGestiones) && is_iterable($historialGestiones)) { ?>
+                            <div class="historial-gestion-cards">
                                 <?php foreach ($historialGestiones as $gestion): ?>
                                     <div class="gestion-card">
                                         <div class="encabezado-gestion">
-                                            <span
-                                                class="codigo-resultado"><?= htmlspecialchars($gestion->codigo_resultado); ?></span>
-                                            <span class="fecha-hora"><?= htmlspecialchars($gestion->fecha_creacion); ?></span>
+                                            <span class="codigo-resultado">
+                                                <?= htmlspecialchars($gestion->codigo_resultado); ?>
+                                            </span>
+                                            <span class="fecha-hora">
+                                                <?= htmlspecialchars($gestion->fecha_creacion); ?>
+                                            </span>
                                         </div>
                                         <p class="comentario"><?= htmlspecialchars($gestion->comentario); ?></p>
-                                        <p class="numero-contactado">Número Contactado:
-                                            <?= htmlspecialchars($gestion->numero_contactado); ?>
+                                        <p class="numero-contactado">
+                                            Número Contactado: <?= htmlspecialchars($gestion->numero_contactado); ?>
                                         </p>
                                         <div class="detalles-secundarios">
                                             <p><strong>Fecha de Revisión:</strong>
                                                 <?= htmlspecialchars($gestion->fecha_revision); ?>
                                             </p>
 
-                                            <!-- // Evaluar si el código de la gestión es positivo usando el arreglo de códigos positivos -->
+                                            <!-- Si el código de la gestión es positivo, mostrar fecha de promesa -->
                                             <?php if (in_array($gestion->codigo_resultado, $codigosPositivosArray)): ?>
                                                 <p><strong>Fecha de Promesa:</strong>
-                                                    <?= htmlspecialchars($gestion->fecha_promesa); ?></p>
+                                                    <?= htmlspecialchars($gestion->fecha_promesa); ?>
+                                                </p>
                                             <?php endif; ?>
 
-                                            <p class="nombre-gestor">Creado por: <?= htmlspecialchars($gestion->creado_por); ?>
+                                            <p class="nombre-gestor">
+                                                Creado por: <?= htmlspecialchars($gestion->creado_por); ?>
                                             </p>
                                         </div>
                                     </div>
                                 <?php endforeach; ?>
-                            </div>
+                            </div> <!-- cierre correcto de .historial-gestion-cards -->
                         <?php } else { ?>
                             <p>No hay gestiones registradas para este préstamo.</p>
                         <?php } ?>
-                    </div>
-                </div>
+
+                    </div> <!-- cierre de .scrollable-gestiones -->
+                </div> <!-- cierre de .tab-content -->
+
 
                 <div class="tab-content" id="historial-pagos">
                     <h2>Historial de pagos</h2>
